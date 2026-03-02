@@ -44,7 +44,7 @@ export default function Intro() {
           flexWrap: "wrap",
           marginBottom: "3rem",
         }}>
-          {["Docker", "Jenkins", "GHCR", "Kubernetes/k3s", "ArgoCD", "Spring Boot"].map(t => (
+          {["Docker", "Jenkins", "GHCR", "Kubernetes / k3s", "ArgoCD", "Spring Boot"].map((t) => (
             <span key={t} className="badge badge-blue">{t}</span>
           ))}
         </div>
@@ -52,20 +52,33 @@ export default function Intro() {
         <div style={{ maxWidth: "680px", margin: "0 auto" }}>
           <div className="card" style={{ textAlign: "left" }}>
             <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-              <span style={{ fontSize: "28px" }}>🎯</span>
+              <div style={{
+                width: "36px",
+                height: "36px",
+                flexShrink: 0,
+                background: "rgba(0,229,255,0.1)",
+                borderRadius: "8px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
+                  <path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#00e5ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
+                </svg>
+              </div>
               <div>
-                <div className="card-title" style={{ marginBottom: "0.75rem" }}>What We'll Cover Today</div>
+                <div className="card-title" style={{ marginBottom: "0.75rem" }}>What We Cover Today</div>
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem 1.5rem" }}>
                   {[
                     "Core tooling — Docker, Jenkins, ArgoCD, k3s",
                     "What GitOps actually means",
                     "How a microservice goes from code to cloud",
                     "The complete CI/CD pipeline",
-                    "Kubernetes service discovery via API Gateway",
+                    "Kubernetes service discovery vs Eureka",
                     "Live demo: deploy a new service end-to-end",
                   ].map((item, i) => (
                     <div key={i} style={{ display: "flex", gap: "0.5rem", fontSize: "12.5px", color: "var(--muted)", alignItems: "flex-start" }}>
-                      <span style={{ color: "var(--accent4)", marginTop: "2px", flexShrink: 0 }}>✓</span>
+                      <span style={{ color: "var(--accent4)", marginTop: "2px", flexShrink: 0 }}>→</span>
                       {item}
                     </div>
                   ))}
@@ -80,12 +93,12 @@ export default function Intro() {
             <div style={{ fontFamily: "var(--font-mono)", fontSize: "24px", fontWeight: 700, color: "var(--accent)" }}>10+</div>
             <div style={{ fontSize: "11px", color: "var(--muted)" }}>Microservices</div>
           </div>
-          <div style={{ width: "1px", background: "var(--border)" }}></div>
+          <div style={{ width: "1px", background: "var(--border)" }} />
           <div style={{ textAlign: "center" }}>
             <div style={{ fontFamily: "var(--font-mono)", fontSize: "24px", fontWeight: 700, color: "#a78bfa" }}>1</div>
             <div style={{ fontSize: "11px", color: "var(--muted)" }}>VPS</div>
           </div>
-          <div style={{ width: "1px", background: "var(--border)" }}></div>
+          <div style={{ width: "1px", background: "var(--border)" }} />
           <div style={{ textAlign: "center" }}>
             <div style={{ fontFamily: "var(--font-mono)", fontSize: "24px", fontWeight: 700, color: "var(--accent4)" }}>GitOps</div>
             <div style={{ fontSize: "11px", color: "var(--muted)" }}>All the way</div>

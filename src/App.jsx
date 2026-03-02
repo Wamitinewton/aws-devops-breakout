@@ -1,13 +1,11 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Intro from "./slides/Intro";
 import ToolsGlossary from "./slides/ToolsGlossary";
-import Architecture from "./slides/Architecture";
 import CICDFlow from "./slides/CICDFlow";
 import DockerSlide from "./slides/DockerSlide";
 import JenkinsSlide from "./slides/JenkinsSlide";
 import ArgoCDSlide from "./slides/ArgoCDSlide";
 import KubernetesSlide from "./slides/KubernetesSlide";
-import GitOpsRepo from "./slides/GitOpsRepo";
 import APIGateway from "./slides/APIGateway";
 import LiveDemo from "./slides/LiveDemo";
 import Nav from "./components/Nav";
@@ -19,9 +17,7 @@ const SLIDES = [
   { id: "jenkins", label: "Jenkins", component: JenkinsSlide },
   { id: "kubernetes", label: "Kubernetes", component: KubernetesSlide },
   { id: "argocd", label: "ArgoCD", component: ArgoCDSlide },
-  { id: "arch", label: "Architecture", component: Architecture },
   { id: "cicd", label: "CI/CD Flow", component: CICDFlow },
-  { id: "gitops", label: "GitOps Repo", component: GitOpsRepo },
   { id: "gateway", label: "API Gateway", component: APIGateway },
   { id: "demo", label: "Live Demo", component: LiveDemo },
 ];
