@@ -1,7 +1,8 @@
+import { FiXCircle, FiCheckCircle, FiSliders, FiZap, FiLock, FiBox, FiHardDrive, FiRefreshCw, FiStar } from "react-icons/fi";
 import CodeBlock from "../components/CodeBlock";
 import FAQ from "../components/FAQ";
 
-const SINGLE_STAGE = `# ❌ Single-stage — ships the entire Maven + JDK
+const SINGLE_STAGE = `# Single-stage — ships the entire build toolchain
 FROM maven:3.9-eclipse-temurin-21
 
 WORKDIR /app
@@ -16,7 +17,7 @@ ENTRYPOINT ["java", "-jar", "target/hello-devops.jar"]
 # Final image size: ~600 MB
 # Contains: JDK 21 + Maven + all source code`;
 
-const MULTI_STAGE = `# ✅ Multi-stage — only the JRE reaches production
+const MULTI_STAGE = `# Multi-stage — only the JRE reaches production
 
 # ── Stage 1: Build ──────────────────────────────
 FROM maven:3.9-eclipse-temurin-21 AS builder
@@ -71,13 +72,22 @@ const FAQ_ITEMS = [
     ),
   },
   {
-    q: "Why use eclipse-temurin:21-jre-alpine instead of just eclipse-temurin:21?",
+    q: "Why use a JRE-based alpine image instead of a full JDK image?",
     a: "Two reasons: (1) JRE vs JDK — JRE is the Java Runtime Environment; it can only run compiled code. JDK also includes compilers and dev tools which are unnecessary at runtime. (2) Alpine Linux is a minimal 5 MB Linux distribution instead of the default Debian/Ubuntu (~130 MB). Together they drastically reduce image size and attack surface.",
   },
   {
     q: "What is the security benefit of running as a non-root user inside the container?",
-    a: "By default, containers run as root — if an attacker exploits a vulnerability in your app, they have root access inside the container and potentially the host. Creating a dedicated user (adduser devops) and switching with USER devops limits the blast radius: the process can only access files owned by that user, making privilege escalation much harder.",
+    a: "By default, containers run as root — if an attacker exploits a vulnerability in your app, they have root access inside the container and potentially the host. Creating a dedicated user and switching with USER limits the blast radius: the process can only access files owned by that user, making privilege escalation much harder.",
   },
+];
+
+const BENEFITS = [
+  { icon: FiSliders, label: "Image Size",        bad: "~600 MB (full build toolchain)",              good: "~85 MB (runtime + artifact only)" },
+  { icon: FiZap,     label: "Pull Speed",         bad: "Slow — all layers pulled on every node",     good: "Fast — smaller layers, faster cold starts" },
+  { icon: FiLock,    label: "Security Surface",   bad: "Build tools, compiler, source in production", good: "Only runtime and compiled artifact" },
+  { icon: FiBox,     label: "Cleanliness",        bad: "Build tools pollute the runtime environment", good: "Strict separation of build vs runtime" },
+  { icon: FiHardDrive, label: "Registry Storage", bad: "More storage = higher cost at scale",         good: "7x smaller image reduces storage and bandwidth" },
+  { icon: FiRefreshCw, label: "Layer Caching",    bad: "Dependency layer mixes with source",          good: "Dependency layer cached independently" },
 ];
 
 export default function Docker3() {
@@ -94,107 +104,56 @@ export default function Docker3() {
         </p>
       </div>
 
-      {/* The problem */}
       <div className="highlight-box danger" style={{ marginBottom: "1.5rem" }}>
-        <span className="icon">🔴</span>
+        <span className="icon"><FiXCircle size={17} /></span>
         <div>
-          <strong>The single-stage problem:</strong> A Maven + JDK 21 base image is ~600 MB.
+          <strong>The single-stage problem:</strong> A full build toolchain image can be ~600 MB.
           Every container pull, every Kubernetes node, every CI artifact carries that weight.
-          Worse — Maven, the JDK compiler, and your raw source code are shipped to production.
+          Worse — build tools and your raw source code are shipped to production.
           That is unnecessary and a security risk.
         </div>
       </div>
 
-      {/* Side by side comparison */}
       <div className="compare-grid" style={{ marginBottom: "1.5rem" }}>
         <div className="compare-card bad">
-          <div className="compare-title">❌ Single-Stage Build</div>
+          <div className="compare-title"><FiXCircle size={14} /> Single-Stage Build</div>
           <CodeBlock lang="dockerfile" filename="Dockerfile (single)" code={SINGLE_STAGE} />
         </div>
         <div className="compare-card good">
-          <div className="compare-title">✅ Multi-Stage Build</div>
+          <div className="compare-title"><FiCheckCircle size={14} /> Multi-Stage Build</div>
           <CodeBlock lang="dockerfile" filename="Dockerfile (multi-stage)" code={MULTI_STAGE} />
         </div>
       </div>
 
-      {/* Benefits */}
       <div className="card" style={{ marginBottom: "1.5rem" }}>
-        <div className="card-title">
-          <span style={{ fontSize: "20px" }}>📊</span> Why Multi-Stage Wins
-        </div>
+        <div className="card-title"><FiSliders size={17} /> Why Multi-Stage Wins</div>
         <div className="card-grid" style={{ marginTop: "0.5rem" }}>
-          {[
-            {
-              icon: "⚖️",
-              label: "Image Size",
-              bad: "~600 MB (Maven + JDK)",
-              good: "~85 MB (JRE + JAR only)",
-              color: "var(--accent4)",
-            },
-            {
-              icon: "🚀",
-              label: "Pull Speed",
-              bad: "Slow — all layers pulled on every node",
-              good: "Fast — smaller layers, faster cold starts",
-              color: "var(--accent4)",
-            },
-            {
-              icon: "🔒",
-              label: "Security Surface",
-              bad: "Maven, JDK compiler, source code in production",
-              good: "Only JRE and compiled JAR — nothing else",
-              color: "var(--accent4)",
-            },
-            {
-              icon: "🧹",
-              label: "Cleanliness",
-              bad: "Build tools pollute the runtime environment",
-              good: "Strict separation of build vs runtime concerns",
-              color: "var(--accent4)",
-            },
-            {
-              icon: "💾",
-              label: "Registry Storage",
-              bad: "More storage = higher cost at scale",
-              good: "7× smaller image reduces storage and bandwidth costs",
-              color: "var(--accent4)",
-            },
-            {
-              icon: "🔄",
-              label: "Layer Caching",
-              bad: "Dependency layer mixes with source — more rebuilds",
-              good: "Dependency layer cached independently from source",
-              color: "var(--accent4)",
-            },
-          ].map(({ icon, label, bad, good, color }) => (
+          {BENEFITS.map(({ icon: Icon, label, bad, good }) => (
             <div key={label} style={{
               background: "var(--surface2)",
               border: "1px solid var(--border)",
               borderRadius: "10px",
               padding: "1rem",
             }}>
-              <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: "13px", color: "#fff", marginBottom: "0.5rem" }}>
-                {icon} {label}
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontFamily: "var(--font-head)", fontWeight: 700, fontSize: "13px", color: "#fff", marginBottom: "0.5rem" }}>
+                <Icon size={15} style={{ color: "var(--accent)", flexShrink: 0 }} /> {label}
               </div>
               <div style={{ fontSize: "12px", color: "var(--danger)", marginBottom: "0.25rem" }}>✗ {bad}</div>
-              <div style={{ fontSize: "12px", color }}>✓ {good}</div>
+              <div style={{ fontSize: "12px", color: "var(--accent4)" }}>✓ {good}</div>
             </div>
           ))}
         </div>
       </div>
 
-      {/* Best practices */}
       <div className="card">
-        <div className="card-title">
-          <span style={{ fontSize: "20px" }}>✨</span> Multi-Stage Best Practices
-        </div>
+        <div className="card-title"><FiStar size={17} /> Multi-Stage Best Practices</div>
         <div className="step-list">
           {[
-            ["Use alpine or distroless runtimes", "eclipse-temurin:21-jre-alpine is perfect for Java — tiny, maintained, and well-tested"],
+            ["Use minimal runtime base images", "Alpine-based or distroless runtimes keep the image small, fast, and secure"],
             ["Always create a non-root user", "RUN addgroup + adduser then USER keeps the container from running as root"],
-            ["COPY --from=builder selectively", "Only copy what the app needs to run — the compiled JAR, not the entire target/ directory"],
-            ["Pin base image versions", "Use eclipse-temurin:21-jre-alpine not eclipse-temurin:latest — reproducible builds"],
-            ["Separate dependency download from compilation", "COPY pom.xml → RUN mvn dependency:go-offline → COPY src → RUN mvn package maximises cache hits"],
+            ["COPY --from=builder selectively", "Only copy what the app needs to run — not the entire build output directory"],
+            ["Pin base image versions", "Use specific version tags, not :latest — ensures reproducible builds"],
+            ["Separate dependency download from compilation", "Download dependencies before copying source to maximise cache hits"],
           ].map(([title, desc], i) => (
             <div className="step-item" key={i}>
               <div className="step-num">{i + 1}</div>

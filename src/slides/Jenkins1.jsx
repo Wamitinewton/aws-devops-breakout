@@ -1,3 +1,4 @@
+import { FiLayout, FiSettings, FiGrid, FiLock, FiRefreshCw, FiInfo } from "react-icons/fi";
 import CodeBlock from "../components/CodeBlock";
 import FAQ from "../components/FAQ";
 
@@ -43,6 +44,39 @@ const FAQ_ITEMS = [
   },
 ];
 
+const ARCHITECTURE_ITEMS = [
+  ["Controller", "Central server. Stores job configs, shows UI at :8080, schedules builds. Does not run builds itself (best practice)."],
+  ["Agent", "Machine that executes the actual build steps. Can be the controller itself (agent any) or a dedicated remote node."],
+  ["Executor", "A thread on an agent that can run one build at a time. More executors = more parallel builds."],
+  ["Plugin", "Jenkins is extended through plugins. ~1,800 plugins: Git, Docker, Maven, Kubernetes, GitHub, Slack, etc."],
+];
+
+const KEY_CONCEPTS = [
+  ["Job / Pipeline", "A configured unit of work. Freestyle jobs use the UI; Pipeline jobs use a Jenkinsfile in your repo — always prefer Pipelines."],
+  ["Jenkinsfile", "A text file (Groovy DSL) checked into your Git repository alongside source code. Defines all build stages."],
+  ["Stage", "A logical group of steps within a pipeline: Checkout, Build, Test, Docker Build, Deploy."],
+  ["Credential", "Encrypted secrets (tokens, passwords) stored in Jenkins. Referenced by ID in Jenkinsfile — never hardcoded."],
+  ["Webhook", "GitHub fires an HTTP POST to Jenkins when code is pushed, triggering a build instantly."],
+];
+
+const PLUGINS = [
+  { name: "Git",              badge: "badge-blue",   desc: "Clone and pull from GitHub repositories" },
+  { name: "GitHub",           badge: "badge-blue",   desc: "Receive webhooks and set commit status" },
+  { name: "Pipeline",         badge: "badge-green",  desc: "Enable Jenkinsfile-based pipelines" },
+  { name: "Docker Pipeline",  badge: "badge-blue",   desc: "Use Docker inside pipeline steps" },
+  { name: "Maven Integration",badge: "badge-amber",  desc: "Auto-detect Maven and manage JDK" },
+  { name: "Credentials",      badge: "badge-purple", desc: "Store and inject secrets securely" },
+  { name: "Workspace Cleanup",badge: "badge-red",    desc: "Clean workspace before/after builds" },
+  { name: "Blue Ocean",       badge: "badge-blue",   desc: "Modern pipeline visualisation UI" },
+];
+
+const CREDENTIALS_STEPS = [
+  ["Manage Jenkins → Credentials", "Go to Dashboard → Manage Jenkins → Credentials → System → Global credentials"],
+  ["Add GHCR Token", "Kind: Secret text. ID: ghcr-token. Value: your GitHub Personal Access Token (PAT) with write:packages scope"],
+  ["Add GitHub Token", "Kind: Secret text. ID: github-token. Value: a PAT with repo scope (to push to the infra repo)"],
+  ["Reference in Jenkinsfile", "Use withCredentials([string(credentialsId: 'ghcr-token', variable: 'GHCR_TOKEN')]) { ... }"],
+];
+
 export default function Jenkins1() {
   return (
     <div className="slide">
@@ -58,7 +92,7 @@ export default function Jenkins1() {
       </div>
 
       <div className="highlight-box info" style={{ marginBottom: "1.5rem" }}>
-        <span className="icon">🔄</span>
+        <span className="icon"><FiRefreshCw size={17} /></span>
         <div>
           <strong>What is CI?</strong> Continuous Integration means automatically running the
           build and test process every time a developer pushes code. The goal: catch broken
@@ -68,15 +102,10 @@ export default function Jenkins1() {
 
       <div className="card-grid" style={{ marginBottom: "1.5rem" }}>
         <div className="card">
-          <div className="card-title"><span style={{ fontSize: "20px" }}>🏗️</span> Jenkins Architecture</div>
+          <div className="card-title"><FiLayout size={17} /> Jenkins Architecture</div>
           <div className="card-body">
             <div className="step-list">
-              {[
-                ["Controller", "Central server. Stores job configs, shows UI at :8080, schedules builds. Does not run builds itself (best practice)."],
-                ["Agent", "Machine that executes the actual build steps. Can be the controller itself (agent any) or a dedicated remote node."],
-                ["Executor", "A thread on an agent that can run one build at a time. More executors = more parallel builds."],
-                ["Plugin", "Jenkins is extended through plugins. ~1,800 plugins: Git, Docker, Maven, Kubernetes, GitHub, Slack, etc."],
-              ].map(([name, desc]) => (
+              {ARCHITECTURE_ITEMS.map(([name, desc]) => (
                 <div className="step-item" key={name}>
                   <div className="step-content">
                     <div className="step-title">{name}</div>
@@ -89,16 +118,10 @@ export default function Jenkins1() {
         </div>
 
         <div className="card">
-          <div className="card-title"><span style={{ fontSize: "20px" }}>⚙️</span> Key Concepts</div>
+          <div className="card-title"><FiSettings size={17} /> Key Concepts</div>
           <div className="card-body">
             <div className="step-list">
-              {[
-                ["Job / Pipeline", "A configured unit of work. Freestyle jobs use the UI; Pipeline jobs use a Jenkinsfile in your repo — always prefer Pipelines."],
-                ["Jenkinsfile", "A text file (Groovy DSL) checked into your Git repository alongside source code. Defines all build stages."],
-                ["Stage", "A logical group of steps within a pipeline: Checkout, Build, Test, Docker Build, Deploy."],
-                ["Credential", "Encrypted secrets (tokens, passwords) stored in Jenkins. Referenced by ID in Jenkinsfile — never hardcoded."],
-                ["Webhook", "GitHub fires an HTTP POST to Jenkins when code is pushed, triggering a build instantly."],
-              ].map(([name, desc]) => (
+              {KEY_CONCEPTS.map(([name, desc]) => (
                 <div className="step-item" key={name}>
                   <div className="step-content">
                     <div className="step-title">{name}</div>
@@ -111,20 +134,10 @@ export default function Jenkins1() {
         </div>
       </div>
 
-      {/* Essential plugins */}
       <div className="card" style={{ marginBottom: "1.5rem" }}>
-        <div className="card-title"><span style={{ fontSize: "20px" }}>🧩</span> Essential Plugins to Install</div>
+        <div className="card-title"><FiGrid size={17} /> Essential Plugins to Install</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: "0.75rem", marginTop: "0.5rem" }}>
-          {[
-            { name: "Git",            badge: "badge-blue",   desc: "Clone and pull from GitHub repositories" },
-            { name: "GitHub",         badge: "badge-blue",   desc: "Receive webhooks and set commit status" },
-            { name: "Pipeline",       badge: "badge-green",  desc: "Enable Jenkinsfile-based pipelines" },
-            { name: "Docker Pipeline",badge: "badge-blue",   desc: "Use Docker inside pipeline steps" },
-            { name: "Maven Integration", badge: "badge-amber", desc: "Auto-detect Maven and manage JDK" },
-            { name: "Credentials",    badge: "badge-purple", desc: "Store and inject secrets securely" },
-            { name: "Workspace Cleanup", badge: "badge-red", desc: "Clean workspace before/after builds" },
-            { name: "Blue Ocean",     badge: "badge-blue",   desc: "Modern pipeline visualisation UI" },
-          ].map(({ name, badge, desc }) => (
+          {PLUGINS.map(({ name, badge, desc }) => (
             <div key={name} style={{ background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: "8px", padding: "0.75rem" }}>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", marginBottom: "0.3rem" }}>
                 <span className={`badge ${badge}`}>{name}</span>
@@ -135,14 +148,13 @@ export default function Jenkins1() {
         </div>
       </div>
 
-      {/* Docker-based setup */}
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
           Running Jenkins with Docker Compose
         </div>
         <CodeBlock lang="yaml" filename="docker-compose.yml" code={DOCKER_COMPOSE_JENKINS} />
         <div className="highlight-box info" style={{ marginTop: "0.75rem" }}>
-          <span className="icon">💡</span>
+          <span className="icon"><FiInfo size={17} /></span>
           <div style={{ fontSize: "12px" }}>
             <strong>After starting Jenkins:</strong> Visit <code>http://localhost:8080</code>, unlock
             with the initial admin password (<code>docker exec jenkins cat /var/jenkins_home/secrets/initialAdminPassword</code>),
@@ -151,17 +163,11 @@ export default function Jenkins1() {
         </div>
       </div>
 
-      {/* Credentials setup */}
       <div className="card">
-        <div className="card-title"><span style={{ fontSize: "20px" }}>🔐</span> Setting Up Credentials</div>
+        <div className="card-title"><FiLock size={17} /> Setting Up Credentials</div>
         <div className="card-body">
           <div className="step-list">
-            {[
-              ["Manage Jenkins → Credentials", "Go to Dashboard → Manage Jenkins → Credentials → System → Global credentials"],
-              ["Add GHCR Token", "Kind: Secret text. ID: ghcr-token. Value: your GitHub Personal Access Token (PAT) with write:packages scope"],
-              ["Add GitHub Token", "Kind: Secret text. ID: github-token. Value: a PAT with repo scope (to push to the infra repo)"],
-              ["Reference in Jenkinsfile", "Use withCredentials([string(credentialsId: 'ghcr-token', variable: 'GHCR_TOKEN')]) { ... }"],
-            ].map(([title, desc], i) => (
+            {CREDENTIALS_STEPS.map(([title, desc], i) => (
               <div className="step-item" key={i}>
                 <div className="step-num">{i + 1}</div>
                 <div className="step-content">

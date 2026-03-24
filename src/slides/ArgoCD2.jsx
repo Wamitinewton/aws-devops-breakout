@@ -1,3 +1,4 @@
+import { FiClipboard, FiFolder } from "react-icons/fi";
 import CodeBlock from "../components/CodeBlock";
 import FAQ from "../components/FAQ";
 
@@ -101,6 +102,25 @@ const FAQ_ITEMS = [
   },
 ];
 
+const MANIFEST_FIELDS = [
+  ["spec.source.repoURL",          "URL of the Git repository containing your Kubernetes manifests (your infra repo)"],
+  ["spec.source.targetRevision",   "Branch or tag to watch. main, HEAD, or a specific tag like v1.2.0"],
+  ["spec.source.path",             "Directory inside the repo where your manifests live. k8s/, helm/, kustomize/, etc."],
+  ["spec.destination.server",      "The Kubernetes API server URL. https://kubernetes.default.svc means the same cluster"],
+  ["spec.destination.namespace",   "The Kubernetes namespace to deploy resources into"],
+  ["syncPolicy.automated",         "Enables automatic sync on Git changes. Without this, you must manually click Sync in the UI"],
+  ["syncPolicy.automated.prune",   "Delete cluster resources that no longer exist in Git"],
+  ["syncPolicy.automated.selfHeal","Revert any manual changes to the cluster back to the Git state"],
+  ["syncOptions.CreateNamespace",  "ArgoCD creates the destination namespace if it does not exist yet"],
+];
+
+const INFRA_DIRS = [
+  ["k8s/", "All Kubernetes manifests. ArgoCD watches this directory and applies every .yaml file to the cluster."],
+  ["deployment.yaml", "The most important file. Jenkins updates the image tag here on every build. ArgoCD detects the change and rolls out the new version."],
+  ["argocd/", "The ArgoCD Application manifest. Apply once: kubectl apply -f argocd/application.yaml"],
+  ["Separate from app code", "This repo is separate from your application source code repo. Clean separation of concerns: app code vs infrastructure."],
+];
+
 export default function ArgoCD2() {
   return (
     <div className="slide">
@@ -130,38 +150,28 @@ export default function ArgoCD2() {
         </div>
       </div>
 
-      {/* Application spec fields */}
       <div className="card" style={{ marginBottom: "1.5rem" }}>
-        <div className="card-title"><span style={{ fontSize: "20px" }}>📋</span> Application Manifest Explained</div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Field</th>
-              <th>What it means</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["spec.source.repoURL",          "URL of the Git repository containing your Kubernetes manifests (your infra repo)"],
-              ["spec.source.targetRevision",   "Branch or tag to watch. main, HEAD, or a specific tag like v1.2.0"],
-              ["spec.source.path",             "Directory inside the repo where your manifests live. k8s/, helm/, kustomize/, etc."],
-              ["spec.destination.server",      "The Kubernetes API server URL. https://kubernetes.default.svc means the same cluster"],
-              ["spec.destination.namespace",   "The Kubernetes namespace to deploy resources into"],
-              ["syncPolicy.automated",         "Enables automatic sync on Git changes. Without this, you must manually click Sync in the UI"],
-              ["syncPolicy.automated.prune",   "Delete cluster resources that no longer exist in Git"],
-              ["syncPolicy.automated.selfHeal","Revert any manual changes to the cluster back to the Git state"],
-              ["syncOptions.CreateNamespace",  "ArgoCD creates the destination namespace if it does not exist yet"],
-            ].map(([field, desc]) => (
-              <tr key={field}>
-                <td><code style={{ fontSize: "10.5px" }}>{field}</code></td>
-                <td style={{ fontSize: "12px" }}>{desc}</td>
+        <div className="card-title"><FiClipboard size={17} /> Application Manifest Explained</div>
+        <div className="table-scroll">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Field</th>
+                <th>What it means</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {MANIFEST_FIELDS.map(([field, desc]) => (
+                <tr key={field}>
+                  <td><code style={{ fontSize: "10.5px" }}>{field}</code></td>
+                  <td style={{ fontSize: "12px" }}>{desc}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
-      {/* CLI reference */}
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
           ArgoCD CLI Reference
@@ -169,9 +179,8 @@ export default function ArgoCD2() {
         <CodeBlock lang="bash" filename="terminal" code={ARGOCD_CLI} />
       </div>
 
-      {/* GitOps infra repo structure */}
       <div className="card">
-        <div className="card-title"><span style={{ fontSize: "20px" }}>📁</span> GitOps Infra Repository Structure</div>
+        <div className="card-title"><FiFolder size={17} /> GitOps Infra Repository Structure</div>
         <div className="two-col">
           <div className="arch-box">{`hello-devops-infra/
 ├── k8s/
@@ -184,12 +193,7 @@ export default function ArgoCD2() {
 └── README.md`}</div>
           <div className="card-body">
             <div className="step-list">
-              {[
-                ["k8s/", "All Kubernetes manifests. ArgoCD watches this directory and applies every .yaml file to the cluster."],
-                ["deployment.yaml", "The most important file. Jenkins updates the image tag here on every build. ArgoCD detects the change and rolls out the new version."],
-                ["argocd/", "The ArgoCD Application manifest. Apply once: kubectl apply -f argocd/application.yaml"],
-                ["Separate from app code", "This repo is separate from your Spring Boot source code repo. Clean separation of concerns: app code vs infrastructure."],
-              ].map(([title, desc]) => (
+              {INFRA_DIRS.map(([title, desc]) => (
                 <div className="step-item" key={title}>
                   <div className="step-content">
                     <div className="step-title" style={{ fontSize: "12px" }}>{title}</div>

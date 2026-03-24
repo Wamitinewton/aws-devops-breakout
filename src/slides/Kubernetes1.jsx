@@ -1,3 +1,4 @@
+import { FiBox, FiSliders, FiRefreshCw, FiActivity, FiSearch, FiLock, FiCpu, FiServer, FiZap, FiInfo } from "react-icons/fi";
 import FAQ from "../components/FAQ";
 
 const FAQ_ITEMS = [
@@ -19,6 +20,28 @@ const FAQ_ITEMS = [
   },
 ];
 
+const CAPABILITIES = [
+  { icon: FiBox,      label: "Container Scheduling", desc: "Decides which node (server) each container runs on based on available CPU and memory resources." },
+  { icon: FiSliders,  label: "Auto Scaling",          desc: "Automatically adds or removes container instances based on CPU usage, memory, or custom metrics." },
+  { icon: FiRefreshCw,label: "Rolling Updates",       desc: "Deploys a new version gradually — new pods come up, traffic shifts, old pods go down. Zero downtime." },
+  { icon: FiActivity, label: "Self-Healing",           desc: "Restarts crashed containers, replaces unhealthy nodes, reschedules pods when a server fails." },
+  { icon: FiSearch,   label: "Service Discovery",     desc: "Containers find each other by DNS name, not IP address. IPs are ephemeral; DNS names are stable." },
+  { icon: FiLock,     label: "Secret Management",     desc: "Stores sensitive data (passwords, tokens) as Secrets and injects them into pods as env vars or files." },
+];
+
+const CONTROL_PLANE_ITEMS = [
+  ["API Server (kube-apiserver)", "The front door — all kubectl commands and ArgoCD syncs go through here via REST"],
+  ["etcd", "A distributed key-value store — the single source of truth for all cluster state"],
+  ["Scheduler (kube-scheduler)", "Watches for new pods with no assigned node and selects the best node to run them on"],
+  ["Controller Manager", "Runs control loops: ensure 3 replicas, restart crashed pods, manage endpoints, etc."],
+];
+
+const WORKER_NODE_ITEMS = [
+  ["kubelet", "Agent on every node. Talks to the API server and ensures pods declared for this node are running"],
+  ["kube-proxy", "Manages network rules so traffic can reach pods. Implements the Service abstraction"],
+  ["Container Runtime", "The engine that actually runs containers. Usually containerd (Docker's runtime underneath)"],
+];
+
 export default function Kubernetes1() {
   return (
     <div className="slide">
@@ -33,9 +56,8 @@ export default function Kubernetes1() {
         </p>
       </div>
 
-      {/* The problem Kubernetes solves */}
       <div className="highlight-box warning" style={{ marginBottom: "1.5rem" }}>
-        <span className="icon">🤔</span>
+        <span className="icon"><FiInfo size={17} /></span>
         <div>
           <strong>The orchestration problem:</strong> You have a containerised app. It runs great
           locally. Now imagine 10 servers, needing 50 container instances, updating to a new version
@@ -44,36 +66,22 @@ export default function Kubernetes1() {
         </div>
       </div>
 
-      {/* Core capabilities */}
       <div className="card-grid" style={{ marginBottom: "1.5rem" }}>
-        {[
-          { icon: "📦", label: "Container Scheduling", desc: "Decides which node (server) each container runs on based on available CPU and memory resources." },
-          { icon: "⚖️", label: "Auto Scaling",         desc: "Automatically adds or removes container instances based on CPU usage, memory, or custom metrics." },
-          { icon: "🔄", label: "Rolling Updates",      desc: "Deploys a new version gradually — new pods come up, traffic shifts, old pods go down. Zero downtime." },
-          { icon: "💊", label: "Self-Healing",          desc: "Restarts crashed containers, replaces unhealthy nodes, reschedules pods when a server fails." },
-          { icon: "🔍", label: "Service Discovery",    desc: "Containers find each other by DNS name, not IP address. IPs are ephemeral; DNS names are stable." },
-          { icon: "🔐", label: "Secret Management",    desc: "Stores sensitive data (passwords, tokens) as Secrets and injects them into pods as env vars or files." },
-        ].map(({ icon, label, desc }) => (
+        {CAPABILITIES.map(({ icon: Icon, label, desc }) => (
           <div className="card" key={label}>
-            <div className="card-title"><span style={{ fontSize: "20px" }}>{icon}</span> {label}</div>
+            <div className="card-title"><Icon size={17} /> {label}</div>
             <div className="card-body">{desc}</div>
           </div>
         ))}
       </div>
 
-      {/* Cluster architecture */}
       <div className="two-col" style={{ marginBottom: "1.5rem" }}>
         <div className="card">
-          <div className="card-title"><span style={{ fontSize: "20px" }}>🧠</span> Control Plane</div>
+          <div className="card-title"><FiCpu size={17} /> Control Plane</div>
           <div className="card-body">
             <p style={{ marginBottom: "0.75rem" }}>The brain of the cluster. Manages state and makes scheduling decisions. Components:</p>
             <div className="step-list">
-              {[
-                ["API Server (kube-apiserver)", "The front door — all kubectl commands and ArgoCD syncs go through here via REST"],
-                ["etcd", "A distributed key-value store — the single source of truth for all cluster state"],
-                ["Scheduler (kube-scheduler)", "Watches for new pods with no assigned node and selects the best node to run them on"],
-                ["Controller Manager", "Runs control loops: ensure 3 replicas, restart crashed pods, manage endpoints, etc."],
-              ].map(([name, desc]) => (
+              {CONTROL_PLANE_ITEMS.map(([name, desc]) => (
                 <div className="step-item" key={name}>
                   <div className="step-content">
                     <div className="step-title" style={{ fontSize: "12px" }}>{name}</div>
@@ -86,15 +94,11 @@ export default function Kubernetes1() {
         </div>
 
         <div className="card">
-          <div className="card-title"><span style={{ fontSize: "20px" }}>💪</span> Worker Nodes</div>
+          <div className="card-title"><FiServer size={17} /> Worker Nodes</div>
           <div className="card-body">
             <p style={{ marginBottom: "0.75rem" }}>The machines that actually run your containers. Each node has:</p>
             <div className="step-list">
-              {[
-                ["kubelet", "Agent on every node. Talks to the API server and ensures pods declared for this node are running"],
-                ["kube-proxy", "Manages network rules so traffic can reach pods. Implements the Service abstraction"],
-                ["Container Runtime", "The engine that actually runs containers. Usually containerd (Docker's runtime underneath)"],
-              ].map(([name, desc]) => (
+              {WORKER_NODE_ITEMS.map(([name, desc]) => (
                 <div className="step-item" key={name}>
                   <div className="step-content">
                     <div className="step-title" style={{ fontSize: "12px" }}>{name}</div>
@@ -116,9 +120,8 @@ export default function Kubernetes1() {
         </div>
       </div>
 
-      {/* k3s install */}
       <div className="card">
-        <div className="card-title"><span style={{ fontSize: "20px" }}>🚀</span> Installing k3s (one command)</div>
+        <div className="card-title"><FiZap size={17} /> Installing k3s (one command)</div>
         <div className="card-body" style={{ fontFamily: "var(--font-mono)", fontSize: "12px" }}>
           <div style={{ background: "#0d1117", borderRadius: "8px", padding: "1rem 1.25rem", border: "1px solid var(--border)" }}>
             <div style={{ color: "var(--vscode-comment)", marginBottom: "0.5rem" }}># Install k3s server (control plane + worker)</div>

@@ -1,3 +1,4 @@
+import { FiSearch, FiClipboard, FiZap } from "react-icons/fi";
 import CodeBlock from "../components/CodeBlock";
 import FAQ from "../components/FAQ";
 
@@ -83,6 +84,34 @@ const FAQ_ITEMS = [
   },
 ];
 
+const TROUBLE_STATUSES = [
+  ["Pending",            "Pod created but not scheduled to a node yet",            "Check kubectl describe pod — not enough CPU/memory on any node?"],
+  ["ImagePullBackOff",   "Cannot pull the container image from the registry",       "Wrong image name/tag, missing imagePullSecret, registry auth failed"],
+  ["CrashLoopBackOff",   "Container starts but keeps crashing immediately",         "kubectl logs <pod> — app throws exception on startup, check app config"],
+  ["OOMKilled",          "Container exceeded its memory limit",                     "Increase memory limit, or fix a memory leak in the application"],
+  ["Running 0/1",        "Container is running but not passing readiness probe",    "Health endpoint not reachable, app still initialising, wrong probe path"],
+  ["Terminating",        "Pod is shutting down",                                    "Usually normal during rolling updates, stuck = kubectl delete pod --force"],
+];
+
+const ROLLING_UPDATE_STEPS = [
+  ["Image tag updated in deployment.yaml", "ArgoCD or kubectl apply triggers the change"],
+  ["Kubernetes starts 1 new Pod", "Pulls the new image, starts the container"],
+  ["Readiness probe passes", "New Pod is healthy and ready to serve traffic"],
+  ["1 old Pod terminated", "Traffic shifts to the new Pod"],
+  ["Repeat for each replica", "Continue until all Pods are on the new version"],
+];
+
+const QUICK_REF = [
+  { cmd: "kubectl get pods -n <ns>",           desc: "List all pods in a namespace" },
+  { cmd: "kubectl describe pod <name>",        desc: "Detailed info + events for a pod" },
+  { cmd: "kubectl logs <pod> -f",              desc: "Stream live logs from a pod" },
+  { cmd: "kubectl apply -f file.yaml",         desc: "Create or update a resource" },
+  { cmd: "kubectl delete -f file.yaml",        desc: "Delete resources from a manifest" },
+  { cmd: "kubectl rollout undo deploy/<name>", desc: "Roll back to the previous version" },
+  { cmd: "kubectl exec -it <pod> -- sh",       desc: "Open a shell inside a container" },
+  { cmd: "kubectl port-forward svc/<svc> 8080:80", desc: "Forward a local port to a service" },
+];
+
 export default function Kubernetes3() {
   return (
     <div className="slide">
@@ -97,7 +126,6 @@ export default function Kubernetes3() {
         </p>
       </div>
 
-      {/* kubectl reference */}
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
           Essential kubectl Commands
@@ -105,34 +133,28 @@ export default function Kubernetes3() {
         <CodeBlock lang="bash" filename="terminal" code={KUBECTL_COMMANDS} />
       </div>
 
-      {/* Troubleshooting */}
       <div className="card" style={{ marginBottom: "1.5rem" }}>
-        <div className="card-title"><span style={{ fontSize: "20px" }}>🔍</span> Troubleshooting Pod Issues</div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Status</th>
-              <th>What it means</th>
-              <th>How to fix</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["Pending",            "Pod created but not scheduled to a node yet",            "Check kubectl describe pod — not enough CPU/memory on any node?"],
-              ["ImagePullBackOff",   "Cannot pull the container image from the registry",       "Wrong image name/tag, missing imagePullSecret, registry auth failed"],
-              ["CrashLoopBackOff",   "Container starts but keeps crashing immediately",         "kubectl logs <pod> — app throws exception on startup, check app config"],
-              ["OOMKilled",          "Container exceeded its memory limit",                     "Increase memory limit, or fix a memory leak in the application"],
-              ["Running 0/1",        "Container is running but not passing readiness probe",    "Health endpoint not reachable, app still initialising, wrong probe path"],
-              ["Terminating",        "Pod is shutting down",                                    "Usually normal during rolling updates, stuck = kubectl delete pod --force"],
-            ].map(([status, meaning, fix]) => (
-              <tr key={status}>
-                <td><code style={{ fontSize: "10.5px", color: "var(--accent3)" }}>{status}</code></td>
-                <td style={{ fontSize: "12px" }}>{meaning}</td>
-                <td style={{ fontSize: "11.5px", color: "var(--muted)" }}>{fix}</td>
+        <div className="card-title"><FiSearch size={17} /> Troubleshooting Pod Issues</div>
+        <div className="table-scroll">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Status</th>
+                <th>What it means</th>
+                <th>How to fix</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {TROUBLE_STATUSES.map(([status, meaning, fix]) => (
+                <tr key={status}>
+                  <td><code style={{ fontSize: "10.5px", color: "var(--accent3)" }}>{status}</code></td>
+                  <td style={{ fontSize: "12px" }}>{meaning}</td>
+                  <td style={{ fontSize: "11.5px", color: "var(--muted)" }}>{fix}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="two-col" style={{ marginBottom: "1.5rem" }}>
@@ -145,16 +167,10 @@ export default function Kubernetes3() {
 
         <div>
           <div className="card" style={{ height: "100%" }}>
-            <div className="card-title"><span style={{ fontSize: "20px" }}>📋</span> Rolling Update Flow</div>
+            <div className="card-title"><FiClipboard size={17} /> Rolling Update Flow</div>
             <div className="card-body">
               <div className="step-list">
-                {[
-                  ["Image tag updated in deployment.yaml", "ArgoCD or kubectl apply triggers the change"],
-                  ["Kubernetes starts 1 new Pod", "Pulls the new image, starts the container"],
-                  ["Readiness probe passes", "New Pod is healthy and ready to serve traffic"],
-                  ["1 old Pod terminated", "Traffic shifts to the new Pod"],
-                  ["Repeat for each replica", "Continue until all Pods are on the new version"],
-                ].map(([title, desc], i) => (
+                {ROLLING_UPDATE_STEPS.map(([title, desc], i) => (
                   <div className="step-item" key={i}>
                     <div className="step-num">{i + 1}</div>
                     <div className="step-content">
@@ -169,20 +185,10 @@ export default function Kubernetes3() {
         </div>
       </div>
 
-      {/* Quick reference */}
       <div className="card">
-        <div className="card-title"><span style={{ fontSize: "20px" }}>⚡</span> kubectl Quick Reference</div>
+        <div className="card-title"><FiZap size={17} /> kubectl Quick Reference</div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(240px, 1fr))", gap: "0.5rem", marginTop: "0.5rem" }}>
-          {[
-            { cmd: "kubectl get pods -n <ns>",          desc: "List all pods in a namespace" },
-            { cmd: "kubectl describe pod <name>",       desc: "Detailed info + events for a pod" },
-            { cmd: "kubectl logs <pod> -f",             desc: "Stream live logs from a pod" },
-            { cmd: "kubectl apply -f file.yaml",        desc: "Create or update a resource" },
-            { cmd: "kubectl delete -f file.yaml",       desc: "Delete resources from a manifest" },
-            { cmd: "kubectl rollout undo deploy/<name>",desc: "Roll back to the previous version" },
-            { cmd: "kubectl exec -it <pod> -- sh",      desc: "Open a shell inside a container" },
-            { cmd: "kubectl port-forward svc/<svc> 8080:80", desc: "Forward a local port to a service" },
-          ].map(({ cmd, desc }) => (
+          {QUICK_REF.map(({ cmd, desc }) => (
             <div key={cmd} style={{ background: "var(--surface2)", border: "1px solid var(--border)", borderRadius: "8px", padding: "0.65rem 0.9rem" }}>
               <div style={{ fontFamily: "var(--font-mono)", fontSize: "11px", color: "var(--accent)", marginBottom: "0.25rem" }}>{cmd}</div>
               <div style={{ fontSize: "11.5px", color: "var(--muted)" }}>{desc}</div>

@@ -1,3 +1,4 @@
+import { FiRefreshCw, FiGlobe, FiClipboard, FiLock, FiTag, FiBarChart2, FiActivity, FiInfo } from "react-icons/fi";
 import CodeBlock from "../components/CodeBlock";
 import FAQ from "../components/FAQ";
 
@@ -24,8 +25,8 @@ spec:
           ports:
             - containerPort: 8080
           env:
-            - name: SPRING_PROFILES_ACTIVE
-              value: "prod"
+            - name: APP_PROFILE
+              value: "production"
           resources:
             requests:          # Minimum resources guaranteed
               cpu: "100m"      # 100 millicores = 0.1 CPU core
@@ -35,13 +36,13 @@ spec:
               memory: "512Mi"
           readinessProbe:
             httpGet:
-              path: /actuator/health
+              path: /health
               port: 8080
             initialDelaySeconds: 15
             periodSeconds: 10
           livenessProbe:
             httpGet:
-              path: /actuator/health
+              path: /health
               port: 8080
             initialDelaySeconds: 30
             periodSeconds: 20`;
@@ -69,7 +70,7 @@ metadata:
   name: hello-devops-config
   namespace: production
 data:
-  spring.profiles.active: "prod"
+  app.profile: "production"
   server.port: "8080"
 
 ---
@@ -111,6 +112,15 @@ const FAQ_ITEMS = [
   },
 ];
 
+const RESOURCE_CARDS = [
+  { icon: FiRefreshCw, name: "Deployment",  badge: "badge-blue",   desc: "Declares how many identical Pod replicas to run, which container image to use, and how to roll out updates." },
+  { icon: FiGlobe,     name: "Service",     badge: "badge-green",  desc: "A stable network endpoint for a set of Pods. Pods come and go; the Service IP/DNS name stays constant." },
+  { icon: FiClipboard, name: "ConfigMap",   badge: "badge-amber",  desc: "Stores non-sensitive configuration as key-value pairs. Inject into pods as environment variables or files." },
+  { icon: FiLock,      name: "Secret",      badge: "badge-purple", desc: "Stores sensitive data (passwords, tokens) as base64-encoded values. Treated with extra care by Kubernetes." },
+  { icon: FiTag,       name: "Namespace",   badge: "badge-blue",   desc: "Virtual cluster. Groups related resources and provides isolation. Recommended: production, staging, argocd." },
+  { icon: FiBarChart2, name: "Pod",         badge: "badge-red",    desc: "The smallest deployable unit — wraps one or more containers sharing a network and storage. Usually managed by a Deployment." },
+];
+
 export default function Kubernetes2() {
   return (
     <div className="slide">
@@ -125,19 +135,11 @@ export default function Kubernetes2() {
         </p>
       </div>
 
-      {/* Resource overview */}
       <div className="card-grid" style={{ marginBottom: "1.5rem" }}>
-        {[
-          { icon: "🔄", name: "Deployment",  badge: "badge-blue",   desc: "Declares how many identical Pod replicas to run, which container image to use, and how to roll out updates." },
-          { icon: "🌐", name: "Service",     badge: "badge-green",  desc: "A stable network endpoint for a set of Pods. Pods come and go; the Service IP/DNS name stays constant." },
-          { icon: "📋", name: "ConfigMap",   badge: "badge-amber",  desc: "Stores non-sensitive configuration as key-value pairs. Inject into pods as environment variables or files." },
-          { icon: "🔐", name: "Secret",      badge: "badge-purple", desc: "Stores sensitive data (passwords, tokens) as base64-encoded values. Treated with extra care by Kubernetes." },
-          { icon: "🏷️", name: "Namespace",  badge: "badge-blue",   desc: "Virtual cluster. Groups related resources and provides isolation. Recommended: production, staging, argocd." },
-          { icon: "📊", name: "Pod",         badge: "badge-red",    desc: "The smallest deployable unit — wraps one or more containers sharing a network and storage. Usually managed by a Deployment." },
-        ].map(({ icon, name, badge, desc }) => (
+        {RESOURCE_CARDS.map(({ icon: Icon, name, badge, desc }) => (
           <div className="card" key={name}>
             <div className="card-title">
-              <span style={{ fontSize: "18px" }}>{icon}</span>
+              <Icon size={17} />
               {name}
               <span className={`badge ${badge}`} style={{ marginLeft: "auto" }}>{name}</span>
             </div>
@@ -146,7 +148,6 @@ export default function Kubernetes2() {
         ))}
       </div>
 
-      {/* Deployment YAML */}
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
           Deployment Manifest
@@ -169,15 +170,14 @@ export default function Kubernetes2() {
         </div>
       </div>
 
-      {/* Probes explanation */}
       <div className="card">
-        <div className="card-title"><span style={{ fontSize: "20px" }}>❤️</span> Health Probes — Why They Matter</div>
+        <div className="card-title"><FiActivity size={17} /> Health Probes — Why They Matter</div>
         <div className="two-col">
           <div>
             <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: "13px", color: "var(--accent4)", marginBottom: "0.5rem" }}>readinessProbe</div>
             <div className="card-body">
               Kubernetes only routes traffic to a pod when the readiness probe returns HTTP 200.
-              During startup, while Spring Boot is initialising, the pod is <em>not</em> ready —
+              During startup, while the application is initialising, the pod is <em>not</em> ready —
               so no traffic reaches it. Essential for zero-downtime rolling updates.
             </div>
           </div>
@@ -191,10 +191,11 @@ export default function Kubernetes2() {
           </div>
         </div>
         <div className="highlight-box info" style={{ marginTop: "1rem" }}>
-          <span className="icon">💡</span>
+          <span className="icon"><FiInfo size={17} /></span>
           <div style={{ fontSize: "12px" }}>
-            Spring Boot Actuator provides the <code>/actuator/health</code> endpoint automatically.
-            Add <code>spring-boot-starter-actuator</code> to your <code>pom.xml</code> dependencies.
+            Configure your health probe path to match your application's health endpoint.
+            For Spring Boot apps this is <code>/actuator/health</code>; for other frameworks,
+            expose any endpoint that returns <code>200 OK</code> when the app is ready.
           </div>
         </div>
       </div>

@@ -1,3 +1,5 @@
+import { FiPackage, FiTarget, FiTerminal } from "react-icons/fi";
+
 export default function Intro() {
   return (
     <div className="slide">
@@ -15,7 +17,7 @@ export default function Intro() {
       <div className="card-grid" style={{ marginBottom: "1.5rem" }}>
         <div className="card">
           <div className="card-title">
-            <span style={{ fontSize: "22px" }}>📦</span> What We Cover
+            <FiPackage size={18} /> What We Cover
           </div>
           <div className="card-body">
             <div className="step-list">
@@ -39,7 +41,7 @@ export default function Intro() {
 
         <div className="card">
           <div className="card-title">
-            <span style={{ fontSize: "22px" }}>🎯</span> Learning Goals
+            <FiTarget size={18} /> Learning Goals
           </div>
           <div className="card-body">
             <div className="step-list">
@@ -50,7 +52,7 @@ export default function Intro() {
                 "Deploy to Kubernetes using YAML manifests",
                 "Automate deployments with ArgoCD and GitOps",
                 "Push and pull images from GitHub Container Registry",
-                "Deploy a real Spring Boot app end-to-end",
+                "Deploy a real containerised application end-to-end",
               ].map((g, i) => (
                 <div className="step-item" key={i}>
                   <div className="step-num">{i + 1}</div>
@@ -65,11 +67,11 @@ export default function Intro() {
       </div>
 
       <div className="highlight-box info">
-        <span className="icon">💡</span>
+        <span className="icon"><FiPackage size={17} /></span>
         <div>
           <strong>Beginner-friendly.</strong> No microservices, no distributed systems — just one
-          clean Spring Boot application deployed the professional way. By the end you will have a
-          working CI/CD pipeline you can reuse for any project.
+          clean containerised application deployed the professional way. By the end you will have a
+          working CI/CD pipeline you can reuse for any project in any language.
         </div>
       </div>
 
@@ -85,7 +87,7 @@ export default function Intro() {
                                 │
                       ┌─────────┴──────────┐
                       │                    │
-                 mvn package           docker build
+                 build & test          docker build
                       │                    │
                       └─────────┬──────────┘
                                 │
@@ -101,15 +103,15 @@ export default function Intro() {
                       Kubernetes rolling update
                                 │
                                 ▼
-                         ✅  App is live!`}</div>
+                         App is live`}</div>
       </div>
 
       <div className="highlight-box success" style={{ marginTop: "1.5rem" }}>
-        <span className="icon">⌨️</span>
+        <span className="icon"><FiTerminal size={17} /></span>
         <div>
           Use <strong>← →</strong> arrow keys or the <strong>Prev / Next</strong> buttons to
           navigate. Each tool section has multiple pages. Look for{" "}
-          <strong>Frequently Asked Questions</strong> with reveal buttons at the bottom of every page.
+          <strong>Frequently Asked Questions</strong> with reveal buttons at the bottom of most pages.
         </div>
       </div>
     </div>

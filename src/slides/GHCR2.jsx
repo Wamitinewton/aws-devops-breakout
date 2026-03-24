@@ -1,3 +1,4 @@
+import { FiRefreshCw } from "react-icons/fi";
 import CodeBlock from "../components/CodeBlock";
 import FAQ from "../components/FAQ";
 
@@ -6,10 +7,10 @@ const CREATE_PAT = `# Steps to create a GitHub Personal Access Token (PAT)
 # 2. Generate new token → Add a note: "GHCR Jenkins"
 # 3. Expiration: 90 days (rotate regularly in production)
 # 4. Scopes to select:
-#    ✅ write:packages   — Push images to GHCR
-#    ✅ read:packages    — Pull images from GHCR
-#    ✅ delete:packages  — Clean up old versions (optional)
-#    ✅ repo             — Needed for private repositories
+#    write:packages   — Push images to GHCR
+#    read:packages    — Pull images from GHCR
+#    delete:packages  — Clean up old versions (optional)
+#    repo             — Needed for private repositories
 # 5. Copy the token — you will NOT see it again!
 
 # Store it in Jenkins Credentials:
@@ -111,6 +112,18 @@ const FAQ_ITEMS = [
   },
 ];
 
+const PIPELINE_FLOW = [
+  ["Developer pushes code",            "git push triggers GitHub webhook → Jenkins starts build"],
+  ["Jenkins builds the application",   "Build and package the application artifact"],
+  ["Jenkins builds Docker image",       "docker build reads Dockerfile, creates image with layered filesystem"],
+  ["Jenkins pushes to GHCR",           "docker push uploads layers to ghcr.io/your-org/hello-devops:BUILD_NUMBER"],
+  ["Image appears in GitHub Packages", "Visible under your org at github.com/orgs/your-org/packages"],
+  ["Jenkins updates deployment.yaml",  "Replaces image tag in infra repo with the new build number"],
+  ["ArgoCD detects the Git change",    "ArgoCD polls or receives webhook — detects OutOfSync state"],
+  ["Kubernetes pulls from GHCR",       "Each node pulls ghcr.io/your-org/hello-devops:BUILD_NUMBER using imagePullSecrets"],
+  ["Rolling update completes",         "New pods pass health checks, old pods terminated — zero downtime"],
+];
+
 export default function GHCR2() {
   return (
     <div className="slide">
@@ -140,7 +153,6 @@ export default function GHCR2() {
         </div>
       </div>
 
-      {/* Jenkinsfile stage */}
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
           Jenkinsfile — Docker Build & Push Stage
@@ -148,7 +160,6 @@ export default function GHCR2() {
         <CodeBlock lang="jenkinsfile" filename="Jenkinsfile (excerpt)" code={JENKINSFILE_GHCR} />
       </div>
 
-      {/* Kubernetes pull secret */}
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
           Kubernetes imagePullSecret — Private GHCR
@@ -156,21 +167,10 @@ export default function GHCR2() {
         <CodeBlock lang="yaml" filename="k8s/deployment.yaml (with pull secret)" code={K8S_IMAGE_PULL_SECRET} />
       </div>
 
-      {/* Complete flow */}
       <div className="card">
-        <div className="card-title"><span style={{ fontSize: "20px" }}>🔄</span> Complete GHCR Flow in the Pipeline</div>
+        <div className="card-title"><FiRefreshCw size={17} /> Complete GHCR Flow in the Pipeline</div>
         <div className="step-list">
-          {[
-            ["Developer pushes code",             "git push triggers GitHub webhook → Jenkins starts build"],
-            ["Jenkins builds JAR",                "mvn clean package produces target/hello-devops.jar"],
-            ["Jenkins builds Docker image",        "docker build reads Dockerfile, creates image with layered filesystem"],
-            ["Jenkins pushes to GHCR",            "docker push uploads layers to ghcr.io/your-org/hello-devops:BUILD_NUMBER"],
-            ["Image appears in GitHub Packages",  "Visible under your org at github.com/orgs/your-org/packages"],
-            ["Jenkins updates deployment.yaml",   "Replaces image tag in infra repo with the new build number"],
-            ["ArgoCD detects the Git change",     "ArgoCD polls or receives webhook — detects OutOfSync state"],
-            ["Kubernetes pulls from GHCR",        "Each node pulls ghcr.io/your-org/hello-devops:BUILD_NUMBER using imagePullSecrets"],
-            ["Rolling update completes",          "New pods pass health checks, old pods terminated — zero downtime"],
-          ].map(([title, desc], i) => (
+          {PIPELINE_FLOW.map(([title, desc], i) => (
             <div className="step-item" key={i}>
               <div className="step-num">{i + 1}</div>
               <div className="step-content">
