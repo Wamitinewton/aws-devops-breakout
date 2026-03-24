@@ -1,61 +1,88 @@
-import QuestionBox from "../components/QuestionBox";
+import FAQ from "../components/FAQ";
 
-const steps = [
+const STEPS = [
   {
     n: "01",
+    icon: "👨‍💻",
     actor: "Developer",
     action: "git push to main",
-    detail: "Engineer commits code and pushes the service repository to GitHub.",
-    color: "var(--accent)",
+    detail: "A developer finishes a feature, commits their code, and pushes to the main branch on GitHub.",
+    color: "#60a5fa",
   },
   {
     n: "02",
+    icon: "🔔",
     actor: "GitHub",
-    action: "Webhook fires",
-    detail: "GitHub sends a POST to the Jenkins webhook endpoint on the server.",
-    color: "var(--accent3)",
+    action: "Webhook fired",
+    detail: "GitHub immediately sends an HTTP POST (webhook) to Jenkins at /github-webhook/. Jenkins receives the event and queues a new build.",
+    color: "#a78bfa",
   },
   {
     n: "03",
+    icon: "🔧",
     actor: "Jenkins",
-    action: "Pipeline starts",
-    detail: "Checks out the repo and runs mvnw package to produce the compiled JAR.",
-    color: "#a78bfa",
+    action: "Pipeline starts — Build JAR",
+    detail: "Jenkins runs the Jenkinsfile. Stage 1: checkout source code. Stage 2: mvn clean package -DskipTests builds the fat JAR.",
+    color: "#d33833",
   },
   {
     n: "04",
+    icon: "🐳",
     actor: "Jenkins",
-    action: "Docker build & push",
-    detail: "Builds the image, tags it with the Jenkins BUILD_NUMBER, pushes to GHCR.",
-    color: "#a78bfa",
+    action: "Docker build & push to GHCR",
+    detail: "docker build creates the image using the multi-stage Dockerfile. Jenkins tags it with the BUILD_NUMBER and pushes to ghcr.io/your-org/hello-devops:BUILD_NUMBER.",
+    color: "#2496ed",
   },
   {
     n: "05",
+    icon: "📝",
     actor: "Jenkins",
-    action: "Updates GitOps repo",
-    detail: "Clones the infra repo, replaces the image tag in deployment.yaml, commits and pushes.",
-    color: "#a78bfa",
+    action: "Update deployment.yaml in infra repo",
+    detail: "Jenkins clones the GitOps infra repo, uses sed to replace the image tag with the new build number, commits, and pushes. This is the only change needed.",
+    color: "#d33833",
   },
   {
     n: "06",
+    icon: "🔄",
     actor: "ArgoCD",
-    action: "Detects drift",
-    detail: "ArgoCD sees the new image tag in Git differs from what is running in the cluster.",
-    color: "var(--accent4)",
+    action: "Detect drift — OutOfSync",
+    detail: "ArgoCD polls the infra repo (or receives a webhook). It sees the image tag in deployment.yaml changed. The cluster is now OutOfSync with Git.",
+    color: "#ef7b4d",
   },
   {
     n: "07",
+    icon: "☸️",
     actor: "Kubernetes",
-    action: "Rolling update",
-    detail: "ArgoCD applies the manifest. k3s starts the new pod, waits for the readiness probe, terminates the old one.",
-    color: "var(--accent4)",
+    action: "Rolling update begins",
+    detail: "ArgoCD applies the updated manifest. Kubernetes starts a rolling update: new pod started → readiness probe passes → traffic shifts → old pod terminated.",
+    color: "#326ce5",
   },
   {
     n: "08",
-    actor: "Live",
-    action: "New version running",
-    detail: "The service is live on the cluster. The API Gateway routes traffic to it automatically.",
-    color: "var(--accent4)",
+    icon: "✅",
+    actor: "Production",
+    action: "New version live — zero downtime",
+    detail: "All replicas are now running the new image. The application is live. ArgoCD status: Synced + Healthy. Total pipeline time: typically 2-5 minutes.",
+    color: "#10b981",
+  },
+];
+
+const FAQ_ITEMS = [
+  {
+    q: "How long does this entire pipeline typically take to run?",
+    a: "For a small Spring Boot application, the typical breakdown is: Maven build 1-2 min, Docker build 1-2 min (faster with cached layers), Docker push 30s-1 min, ArgoCD sync 30s-1 min. Total: 3-6 minutes from git push to live. With warm Docker layer cache (unchanged dependencies) the Docker build is under 30 seconds.",
+  },
+  {
+    q: "What happens if the Docker push fails in the middle of the pipeline?",
+    a: "Jenkins marks the build as FAILED and sends a notification (Slack, email, etc.). The infra repo is NOT updated, so ArgoCD never syncs a broken image. The cluster continues running the previous version. This is a key safety property of the pipeline — partial failures don't result in broken deployments.",
+  },
+  {
+    q: "What if the new pods fail their readiness probe during the rolling update?",
+    a: "Kubernetes pauses the rolling update and does not terminate the old pods. The old version continues serving traffic. Your deployment goes into a 'Progressing' state in ArgoCD, and you can roll back with kubectl rollout undo or by reverting the Git commit. The cluster never has zero running pods.",
+  },
+  {
+    q: "How do we handle database migrations in this pipeline?",
+    a: "For a beginner setup, the simplest approach is to run migrations as a Kubernetes Job or Init Container that runs before the application pod starts. Tools like Flyway or Liquibase can handle this. The Init Container pattern ensures migrations complete successfully before any app pod receives traffic — preventing startup failures due to missing schema.",
   },
 ];
 
@@ -63,67 +90,126 @@ export default function CICDFlow() {
   return (
     <div className="slide">
       <div className="slide-header">
-        <span className="slide-tag">Section 06</span>
-        <h2 className="slide-title">The Full CI/CD Pipeline</h2>
-        <p className="slide-subtitle">From git push to production — every step, every actor.</p>
+        <span className="slide-tag">The Complete Pipeline</span>
+        <h1 className="slide-title">
+          CI/CD <span className="glow-text">Flow</span> — End to End
+        </h1>
+        <p className="slide-subtitle">
+          Eight steps from a developer's <code>git push</code> to a live deployment in
+          Kubernetes — fully automated, zero-downtime, and with complete audit trail.
+        </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))", gap: "0.75rem", marginBottom: "1.5rem" }}>
-        {steps.map((s) => (
-          <div key={s.n} style={{
-            background: "var(--surface)",
-            border: "1px solid var(--border)",
-            borderRadius: "10px",
-            padding: "1rem",
-            display: "flex",
-            gap: "0.75rem",
-            alignItems: "flex-start",
-            position: "relative",
-            overflow: "hidden",
-          }}>
-            <div style={{
-              width: "36px",
-              height: "36px",
-              borderRadius: "8px",
-              border: `1.5px solid ${s.color}`,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              fontFamily: "var(--font-mono)",
-              fontSize: "10px",
-              fontWeight: 700,
-              color: s.color,
-              flexShrink: 0,
-              background: "rgba(0,0,0,0.3)",
-            }}>{s.n}</div>
-            <div style={{ flex: 1 }}>
-              <div style={{ display: "flex", gap: "0.5rem", alignItems: "center", marginBottom: "4px" }}>
-                <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--muted)" }}>{s.actor}</span>
+      {/* Steps */}
+      <div style={{ display: "flex", flexDirection: "column", gap: "0.75rem", marginBottom: "2rem" }}>
+        {STEPS.map((s, idx) => (
+          <div key={s.n} style={{ display: "flex", gap: "1rem" }}>
+            {/* Step number + connector */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flexShrink: 0 }}>
+              <div style={{
+                width: 42,
+                height: 42,
+                borderRadius: "50%",
+                background: `${s.color}18`,
+                border: `2px solid ${s.color}55`,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                fontSize: "18px",
+                flexShrink: 0,
+              }}>
+                {s.icon}
               </div>
-              <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: "13px", color: "#fff", marginBottom: "4px" }}>{s.action}</div>
-              <div style={{ fontSize: "11.5px", color: "var(--muted)" }}>{s.detail}</div>
+              {idx < STEPS.length - 1 && (
+                <div style={{ width: 2, flex: 1, minHeight: 16, background: `linear-gradient(to bottom, ${s.color}33, transparent)`, margin: "4px 0" }} />
+              )}
+            </div>
+
+            {/* Content */}
+            <div style={{
+              flex: 1,
+              background: "var(--surface)",
+              border: "1px solid var(--border)",
+              borderLeft: `3px solid ${s.color}`,
+              borderRadius: "0 10px 10px 0",
+              padding: "0.75rem 1rem",
+              marginBottom: idx < STEPS.length - 1 ? "0" : "0",
+            }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.75rem", marginBottom: "0.3rem" }}>
+                <span style={{
+                  fontFamily: "var(--font-mono)",
+                  fontSize: "10px",
+                  fontWeight: 700,
+                  color: s.color,
+                  background: `${s.color}15`,
+                  borderRadius: "4px",
+                  padding: "2px 6px",
+                  letterSpacing: "1px",
+                }}>
+                  Step {s.n}
+                </span>
+                <span style={{ fontFamily: "var(--font-mono)", fontSize: "10px", color: "var(--muted)", letterSpacing: "1px" }}>
+                  {s.actor}
+                </span>
+              </div>
+              <div style={{ fontFamily: "var(--font-head)", fontWeight: 700, fontSize: "14px", color: "#fff", marginBottom: "0.2rem" }}>
+                {s.action}
+              </div>
+              <div style={{ fontSize: "12.5px", color: "var(--muted)", lineHeight: "1.6" }}>
+                {s.detail}
+              </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="highlight-box success" style={{ marginBottom: "1rem" }}>
-        <div>
-          <strong style={{ color: "var(--accent4)" }}>Zero manual deployment steps</strong>
-          <span style={{ color: "var(--muted)", fontSize: "12.5px" }}> after initial setup. The entire flow from code to production is automatic. The only human action is writing and pushing code.</span>
+      {/* Summary cards */}
+      <div className="card-grid" style={{ marginBottom: "1.5rem" }}>
+        <div className="card">
+          <div className="card-title"><span style={{ fontSize: "18px" }}>🛡️</span> Safety Properties</div>
+          <div className="card-body">
+            <div className="step-list">
+              {[
+                "Failed builds never reach the cluster — infra repo not updated",
+                "Rolling updates ensure no downtime — old pods stay until new ones are healthy",
+                "Git is the rollback mechanism — revert a commit = revert a deployment",
+                "Every deployment is a commit — full audit trail",
+              ].map((item, i) => (
+                <div className="step-item" key={i}>
+                  <div style={{ color: "var(--accent4)", flexShrink: 0 }}>✓</div>
+                  <div className="step-desc">{item}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-title"><span style={{ fontSize: "18px" }}>⏱️</span> Typical Timings</div>
+          <div className="card-body">
+            <table className="data-table">
+              <tbody>
+                {[
+                  ["Maven build",        "1 – 2 min"],
+                  ["Docker build",       "30s – 2 min (cached layers faster)"],
+                  ["Docker push",        "20s – 60s"],
+                  ["Git update",         "5 – 10s"],
+                  ["ArgoCD sync",        "30s – 60s"],
+                  ["K8s rolling update", "30s – 90s"],
+                  ["Total",              "3 – 7 minutes"],
+                ].map(([phase, time]) => (
+                  <tr key={phase}>
+                    <td>{phase}</td>
+                    <td style={{ color: "var(--accent3)" }}>{time}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
 
-      <div className="highlight-box info">
-        <div style={{ fontSize: "12.5px", color: "var(--muted)" }}>
-          <strong style={{ color: "var(--accent)" }}>Typical end-to-end time:</strong> git push to pod running is approximately 3–5 minutes. Jenkins build: ~2 min. ArgoCD detection and sync: ~1 min. Pod startup with Spring Boot initialDelaySeconds: ~2 min.
-        </div>
-      </div>
-
-      <QuestionBox
-        question="If a developer pushes bad code that causes the new pod's readiness probe to fail, what happens to the live service?"
-        answer="Nothing breaks for users. Kubernetes performs a rolling update: it starts the new pod first and waits for the readiness probe to return HTTP 200 before terminating the old pod. If the new pod never becomes ready (failureThreshold: 3 failed checks), Kubernetes marks the rollout as failed and stops. The old pod continues running and serving traffic. The service never goes down. This is the value of properly configured readiness probes."
-      />
+      <FAQ items={FAQ_ITEMS} />
     </div>
   );
 }

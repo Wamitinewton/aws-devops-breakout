@@ -1,117 +1,116 @@
 export default function Intro() {
   return (
     <div className="slide">
-      <div style={{ textAlign: "center", padding: "2rem 0 3rem" }}>
-        <div style={{
-          display: "inline-block",
-          background: "linear-gradient(135deg, rgba(0,229,255,0.1), rgba(124,58,237,0.1))",
-          border: "1px solid rgba(0,229,255,0.2)",
-          borderRadius: "100px",
-          padding: "6px 20px",
-          fontFamily: "var(--font-mono)",
-          fontSize: "11px",
-          color: "var(--accent)",
-          letterSpacing: "3px",
-          marginBottom: "1.5rem",
-        }}>
-          AWS STUDENT COMMUNITY DAY · BREAKOUT SESSION
-        </div>
-        <h1 style={{
-          fontFamily: "var(--font-head)",
-          fontSize: "clamp(2.5rem, 6vw, 4.5rem)",
-          fontWeight: 800,
-          color: "#fff",
-          lineHeight: 1.0,
-          marginBottom: "1rem",
-          letterSpacing: "-2px",
-        }}>
+      <div className="slide-header">
+        <span className="slide-tag">Session 01 · Welcome</span>
+        <h1 className="slide-title">
           The <span className="glow-text">GitOps</span> Bridge
         </h1>
-        <p style={{
-          fontFamily: "var(--font-head)",
-          fontSize: "clamp(1rem, 2.5vw, 1.5rem)",
-          color: "var(--muted)",
-          fontWeight: 600,
-          marginBottom: "2rem",
-        }}>
-          Automating Microservice Deployment for the Modern Cloud
+        <p className="slide-subtitle">
+          A beginner-friendly, hands-on journey through Docker, Jenkins, Kubernetes, ArgoCD,
+          and GitHub Container Registry — everything you need to build a real CI/CD pipeline.
         </p>
+      </div>
 
-        <div style={{
-          display: "flex",
-          gap: "0.5rem",
-          justifyContent: "center",
-          flexWrap: "wrap",
-          marginBottom: "3rem",
-        }}>
-          {["Docker", "Jenkins", "GHCR", "Kubernetes / k3s", "ArgoCD", "Spring Boot"].map((t) => (
-            <span key={t} className="badge badge-blue">{t}</span>
-          ))}
-        </div>
-
-        <div style={{ maxWidth: "680px", margin: "0 auto" }}>
-          <div className="card" style={{ textAlign: "left" }}>
-            <div style={{ display: "flex", gap: "1rem", alignItems: "flex-start" }}>
-              <div style={{
-                width: "36px",
-                height: "36px",
-                flexShrink: 0,
-                background: "rgba(0,229,255,0.1)",
-                borderRadius: "8px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-              }}>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <path d="M9 12l2 2 4-4M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke="#00e5ff" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/>
-                </svg>
-              </div>
-              <div>
-                <div className="card-title" style={{ marginBottom: "0.75rem" }}>What We Cover Today</div>
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "0.4rem 1.5rem" }}>
-                  {[
-                    "Core tooling — Docker, Jenkins, ArgoCD, k3s",
-                    "What GitOps actually means",
-                    "How a microservice goes from code to cloud",
-                    "The complete CI/CD pipeline",
-                    "Kubernetes service discovery vs Eureka",
-                    "Live demo: deploy a new service end-to-end",
-                  ].map((item, i) => (
-                    <div key={i} style={{ display: "flex", gap: "0.5rem", fontSize: "12.5px", color: "var(--muted)", alignItems: "flex-start" }}>
-                      <span style={{ color: "var(--accent4)", marginTop: "2px", flexShrink: 0 }}>→</span>
-                      {item}
-                    </div>
-                  ))}
+      <div className="card-grid" style={{ marginBottom: "1.5rem" }}>
+        <div className="card">
+          <div className="card-title">
+            <span style={{ fontSize: "22px" }}>📦</span> What We Cover
+          </div>
+          <div className="card-body">
+            <div className="step-list">
+              {[
+                ["Docker",      "Containerise your application reliably"],
+                ["Jenkins",     "Automate your build and release pipeline"],
+                ["Kubernetes",  "Orchestrate containers at scale"],
+                ["ArgoCD",      "Deploy with GitOps — Git is the source of truth"],
+                ["GHCR",        "Store and distribute your Docker images"],
+              ].map(([tool, desc]) => (
+                <div className="step-item" key={tool}>
+                  <div className="step-content">
+                    <div className="step-title">{tool}</div>
+                    <div className="step-desc">{desc}</div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
 
-        <div style={{ marginTop: "2.5rem", display: "flex", gap: "1rem", justifyContent: "center", flexWrap: "wrap" }}>
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "24px", fontWeight: 700, color: "var(--accent)" }}>10+</div>
-            <div style={{ fontSize: "11px", color: "var(--muted)" }}>Microservices</div>
+        <div className="card">
+          <div className="card-title">
+            <span style={{ fontSize: "22px" }}>🎯</span> Learning Goals
           </div>
-          <div style={{ width: "1px", background: "var(--border)" }} />
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "24px", fontWeight: 700, color: "#a78bfa" }}>1</div>
-            <div style={{ fontSize: "11px", color: "var(--muted)" }}>VPS</div>
-          </div>
-          <div style={{ width: "1px", background: "var(--border)" }} />
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontFamily: "var(--font-mono)", fontSize: "24px", fontWeight: 700, color: "var(--accent4)" }}>GitOps</div>
-            <div style={{ fontSize: "11px", color: "var(--muted)" }}>All the way</div>
+          <div className="card-body">
+            <div className="step-list">
+              {[
+                "Understand why each tool exists and what problem it solves",
+                "Write Dockerfiles — single-stage and multi-stage",
+                "Build a Jenkins pipeline (Jenkinsfile) from scratch",
+                "Deploy to Kubernetes using YAML manifests",
+                "Automate deployments with ArgoCD and GitOps",
+                "Push and pull images from GitHub Container Registry",
+                "Deploy a real Spring Boot app end-to-end",
+              ].map((g, i) => (
+                <div className="step-item" key={i}>
+                  <div className="step-num">{i + 1}</div>
+                  <div className="step-content">
+                    <div className="step-desc">{g}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>
 
-      <hr className="section-divider" />
+      <div className="highlight-box info">
+        <span className="icon">💡</span>
+        <div>
+          <strong>Beginner-friendly.</strong> No microservices, no distributed systems — just one
+          clean Spring Boot application deployed the professional way. By the end you will have a
+          working CI/CD pipeline you can reuse for any project.
+        </div>
+      </div>
 
-      <div style={{ textAlign: "center" }}>
-        <p style={{ color: "var(--muted)", fontSize: "12px" }}>
-          Navigate with <code>← →</code> arrow keys or use the buttons below
-        </p>
+      <div style={{ marginTop: "1.5rem" }}>
+        <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
+          The full pipeline at a glance
+        </div>
+        <div className="arch-box">{`  Developer
+      │
+      │  git push
+      ▼
+  GitHub ──── Webhook ────► Jenkins
+                                │
+                      ┌─────────┴──────────┐
+                      │                    │
+                 mvn package           docker build
+                      │                    │
+                      └─────────┬──────────┘
+                                │
+                          docker push ──► GHCR
+                                │
+                     update deployment.yaml in
+                         GitOps Infra Repo
+                                │
+                                ▼
+                       ArgoCD detects drift
+                                │
+                                ▼
+                      Kubernetes rolling update
+                                │
+                                ▼
+                         ✅  App is live!`}</div>
+      </div>
+
+      <div className="highlight-box success" style={{ marginTop: "1.5rem" }}>
+        <span className="icon">⌨️</span>
+        <div>
+          Use <strong>← →</strong> arrow keys or the <strong>Prev / Next</strong> buttons to
+          navigate. Each tool section has multiple pages. Look for{" "}
+          <strong>Frequently Asked Questions</strong> with reveal buttons at the bottom of every page.
+        </div>
       </div>
     </div>
   );
