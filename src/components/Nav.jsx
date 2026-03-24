@@ -1,52 +1,74 @@
+const SECTION_META = {
+  intro:      { label: "Welcome",     color: "var(--accent)" },
+  tools:      { label: "Tools",       color: "var(--accent)" },
+  docker:     { label: "Docker",      color: "#2496ed" },
+  jenkins:    { label: "Jenkins",     color: "#d33833" },
+  kubernetes: { label: "Kubernetes",  color: "#326ce5" },
+  argocd:     { label: "ArgoCD",      color: "#ef7b4d" },
+  ghcr:       { label: "GHCR",        color: "#a78bfa" },
+  cicd:       { label: "CI/CD Flow",  color: "var(--accent4)" },
+  demo:       { label: "Live Demo",   color: "var(--accent3)" },
+};
+
 export default function Nav({ slides, current, goTo }) {
+  const activeSectionId = slides[current]?.section ?? "";
+  const activeSlide = slides[current];
+
+  // Build section groups: find first slide index per section
+  const sectionFirstIndex = {};
+  slides.forEach((s, i) => {
+    if (sectionFirstIndex[s.section] === undefined) {
+      sectionFirstIndex[s.section] = i;
+    }
+  });
+
+  const sections = Object.keys(sectionFirstIndex);
+
   return (
-    <nav style={{
-      display: "flex",
-      alignItems: "center",
-      padding: "0.75rem 2rem",
-      borderBottom: "1px solid var(--border)",
-      background: "var(--surface)",
-      gap: "0.5rem",
-      flexWrap: "wrap",
-      position: "sticky",
-      top: 0,
-      zIndex: 100,
-    }}>
-      <span style={{
-        fontFamily: "var(--font-head)",
-        fontWeight: 800,
-        fontSize: "15px",
-        color: "#fff",
-        marginRight: "1.5rem",
-        whiteSpace: "nowrap",
-        letterSpacing: "-0.5px",
-      }}>
-        <span className="glow-text">GitOps</span> Bridge
-      </span>
-      <div style={{ display: "flex", gap: "4px", flexWrap: "wrap" }}>
-        {slides.map((s, i) => (
-          <button
-            key={s.id}
-            onClick={() => goTo(i)}
-            style={{
-              background: i === current ? "rgba(0,229,255,0.12)" : "transparent",
-              border: i === current ? "1px solid rgba(0,229,255,0.4)" : "1px solid transparent",
-              color: i === current ? "var(--accent)" : "var(--muted)",
-              padding: "4px 12px",
-              borderRadius: "4px",
-              cursor: "pointer",
-              fontFamily: "var(--font-mono)",
-              fontSize: "11px",
-              transition: "all 0.15s",
-              letterSpacing: "0.5px",
-            }}
-            onMouseEnter={e => { if (i !== current) e.target.style.color = "var(--text)"; }}
-            onMouseLeave={e => { if (i !== current) e.target.style.color = "var(--muted)"; }}
-          >
-            {s.label}
-          </button>
-        ))}
+    <nav className="top-nav">
+      <div className="nav-brand">
+        <span className="glow-text">GitOps</span>
+        <span className="nav-brand-sub">for Beginners</span>
       </div>
+
+      <div className="nav-sections">
+        {sections.map((sectionId) => {
+          const meta = SECTION_META[sectionId] ?? { label: sectionId, color: "var(--accent)" };
+          const isActive = activeSectionId === sectionId;
+          // Count how many slides belong to this section
+          const sectionSlides = slides.filter((s) => s.section === sectionId);
+          const sectionPage = isActive && sectionSlides.length > 1
+            ? sectionSlides.findIndex((s) => s.id === activeSlide.id) + 1
+            : null;
+
+          return (
+            <button
+              key={sectionId}
+              className={`nav-section-btn ${isActive ? "nav-section-active" : ""}`}
+              style={{ "--section-color": meta.color }}
+              onClick={() => goTo(sectionFirstIndex[sectionId])}
+              title={meta.label}
+            >
+              <span className="nav-section-label">{meta.label}</span>
+              {sectionPage !== null && sectionSlides.length > 1 && (
+                <span className="nav-section-page">{sectionPage}/{sectionSlides.length}</span>
+              )}
+            </button>
+          );
+        })}
+      </div>
+
+      {activeSlide?.page && activeSlide?.total && (
+        <div className="nav-page-dots">
+          {Array.from({ length: activeSlide.total }, (_, i) => (
+            <span
+              key={i}
+              className={`nav-dot ${i + 1 === activeSlide.page ? "nav-dot-active" : ""}`}
+              style={{ "--section-color": SECTION_META[activeSectionId]?.color ?? "var(--accent)" }}
+            />
+          ))}
+        </div>
+      )}
     </nav>
   );
 }
