@@ -48,15 +48,15 @@ const JENKINSFILE = `pipeline {
                                         variable: 'GHCR_TOKEN')]) {
                     sh """
                         echo \\$GHCR_TOKEN | \\
-                          docker login ghcr.io -u ${GITHUB_USER} --password-stdin
+                          docker login ghcr.io -u \${GITHUB_USER} --password-stdin
 
                         docker build \\
-                          -t ${IMAGE_NAME}:${BUILD_NUMBER} \\
-                          -t ${IMAGE_NAME}:latest \\
+                          -t \${IMAGE_NAME}:\${BUILD_NUMBER} \\
+                          -t \${IMAGE_NAME}:latest \\
                           .
 
-                        docker push ${IMAGE_NAME}:${BUILD_NUMBER}
-                        docker push ${IMAGE_NAME}:latest
+                        docker push \${IMAGE_NAME}:\${BUILD_NUMBER}
+                        docker push \${IMAGE_NAME}:latest
                     """
                 }
             }
@@ -73,13 +73,13 @@ const JENKINSFILE = `pipeline {
                         cd hello-devops-infra
 
                         # Update the image tag in the Kubernetes deployment manifest
-                        sed -i "s|image: ${IMAGE_NAME}:.*|image: ${IMAGE_NAME}:${BUILD_NUMBER}|" \\
+                        sed -i "s|image: \${IMAGE_NAME}:.*|image: \${IMAGE_NAME}:\${BUILD_NUMBER}|" \\
                               k8s/deployment.yaml
 
                         git config user.email "jenkins@devops.local"
                         git config user.name "Jenkins CI"
                         git add k8s/deployment.yaml
-                        git commit -m "ci: bump hello-devops to build #${BUILD_NUMBER}"
+                        git commit -m "ci: bump hello-devops to build #\${BUILD_NUMBER}"
                         git push
                     """
                 }
@@ -89,10 +89,10 @@ const JENKINSFILE = `pipeline {
 
     post {
         success {
-            echo "Build ${BUILD_NUMBER} succeeded — ArgoCD will sync shortly."
+            echo "Build \${BUILD_NUMBER} succeeded — ArgoCD will sync shortly."
         }
         failure {
-            echo "Build ${BUILD_NUMBER} failed. Check the logs above."
+            echo "Build \${BUILD_NUMBER} failed. Check the logs above."
         }
         always {
             // Clean workspace to avoid stale files on next build

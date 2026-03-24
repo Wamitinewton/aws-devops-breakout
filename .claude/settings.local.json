@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -n '\\\\${' /home/newton/Desktop/projects/gitops-bridge/src/slides/*.jsx)",
+      "Bash(grep -v '\\\\\\\\\\\\\\\\${')",
+      "Bash(grep -v '\\\\\\\\\\\\${')",
+      "Bash(grep:*)"
+    ]
+  }
+}

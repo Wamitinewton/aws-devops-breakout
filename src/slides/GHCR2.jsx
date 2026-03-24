@@ -67,16 +67,16 @@ const JENKINSFILE_GHCR = `stage('Docker Build & Push') {
 
                 # Build with both build-number and latest tags
                 docker build \\
-                  -t ghcr.io/your-org/hello-devops:\\${BUILD_NUMBER} \\
+                  -t ghcr.io/your-org/hello-devops:\${BUILD_NUMBER} \\
                   -t ghcr.io/your-org/hello-devops:latest \\
                   .
 
                 # Push both tags
-                docker push ghcr.io/your-org/hello-devops:\\${BUILD_NUMBER}
+                docker push ghcr.io/your-org/hello-devops:\${BUILD_NUMBER}
                 docker push ghcr.io/your-org/hello-devops:latest
 
                 # Clean up local image to save disk space
-                docker rmi ghcr.io/your-org/hello-devops:\\${BUILD_NUMBER}
+                docker rmi ghcr.io/your-org/hello-devops:\${BUILD_NUMBER}
                 docker rmi ghcr.io/your-org/hello-devops:latest
             """
         }
