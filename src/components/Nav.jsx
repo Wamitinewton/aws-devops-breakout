@@ -1,3 +1,5 @@
+import { useState, useEffect, useRef } from "react";
+
 const SECTION_META = {
   intro:      { label: "Welcome",     color: "var(--accent)" },
   tools:      { label: "Tools",       color: "var(--accent)" },
@@ -11,10 +13,12 @@ const SECTION_META = {
 };
 
 export default function Nav({ slides, current, goTo }) {
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef(null);
+
   const activeSectionId = slides[current]?.section ?? "";
   const activeSlide = slides[current];
 
-  // Build section groups: find first slide index per section
   const sectionFirstIndex = {};
   slides.forEach((s, i) => {
     if (sectionFirstIndex[s.section] === undefined) {
@@ -24,6 +28,54 @@ export default function Nav({ slides, current, goTo }) {
 
   const sections = Object.keys(sectionFirstIndex);
 
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (menuRef.current && !menuRef.current.contains(e.target)) {
+        setMenuOpen(false);
+      }
+    };
+    if (menuOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener("touchstart", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [menuOpen]);
+
+  const handleSectionClick = (idx) => {
+    goTo(idx);
+    setMenuOpen(false);
+  };
+
+  const activeMeta = SECTION_META[activeSectionId] ?? { label: activeSectionId, color: "var(--accent)" };
+
+  const renderSectionButton = (sectionId, onClick, extraClass = "") => {
+    const meta = SECTION_META[sectionId] ?? { label: sectionId, color: "var(--accent)" };
+    const isActive = activeSectionId === sectionId;
+    const sectionSlides = slides.filter((s) => s.section === sectionId);
+    const sectionPage =
+      isActive && sectionSlides.length > 1
+        ? sectionSlides.findIndex((s) => s.id === activeSlide.id) + 1
+        : null;
+
+    return (
+      <button
+        key={sectionId}
+        className={`nav-section-btn ${isActive ? "nav-section-active" : ""} ${extraClass}`}
+        style={{ "--section-color": meta.color }}
+        onClick={() => onClick(sectionFirstIndex[sectionId])}
+        title={meta.label}
+      >
+        <span className="nav-section-label">{meta.label}</span>
+        {sectionPage !== null && sectionSlides.length > 1 && (
+          <span className="nav-section-page">{sectionPage}/{sectionSlides.length}</span>
+        )}
+      </button>
+    );
+  };
+
   return (
     <nav className="top-nav">
       <div className="nav-brand">
@@ -32,30 +84,63 @@ export default function Nav({ slides, current, goTo }) {
       </div>
 
       <div className="nav-sections">
-        {sections.map((sectionId) => {
-          const meta = SECTION_META[sectionId] ?? { label: sectionId, color: "var(--accent)" };
-          const isActive = activeSectionId === sectionId;
-          // Count how many slides belong to this section
-          const sectionSlides = slides.filter((s) => s.section === sectionId);
-          const sectionPage = isActive && sectionSlides.length > 1
-            ? sectionSlides.findIndex((s) => s.id === activeSlide.id) + 1
-            : null;
+        {sections.map((sectionId) => renderSectionButton(sectionId, goTo))}
+      </div>
 
-          return (
-            <button
-              key={sectionId}
-              className={`nav-section-btn ${isActive ? "nav-section-active" : ""}`}
-              style={{ "--section-color": meta.color }}
-              onClick={() => goTo(sectionFirstIndex[sectionId])}
-              title={meta.label}
-            >
-              <span className="nav-section-label">{meta.label}</span>
-              {sectionPage !== null && sectionSlides.length > 1 && (
-                <span className="nav-section-page">{sectionPage}/{sectionSlides.length}</span>
-              )}
-            </button>
-          );
-        })}
+      <div className="nav-mobile" ref={menuRef}>
+        <div
+          className="nav-mobile-current"
+          style={{ "--section-color": activeMeta.color }}
+        >
+          <span className="nav-mobile-section-name">{activeMeta.label}</span>
+          {activeSlide?.page && activeSlide?.total && (
+            <span className="nav-section-page">
+              {activeSlide.page}/{activeSlide.total}
+            </span>
+          )}
+        </div>
+
+        <button
+          className={`hamburger-btn ${menuOpen ? "hamburger-open" : ""}`}
+          onClick={() => setMenuOpen((v) => !v)}
+          aria-label="Toggle navigation menu"
+          aria-expanded={menuOpen}
+        >
+          <span />
+          <span />
+          <span />
+        </button>
+
+        {menuOpen && (
+          <div className="nav-dropdown">
+            {sections.map((sectionId) => {
+              const meta = SECTION_META[sectionId] ?? { label: sectionId, color: "var(--accent)" };
+              const isActive = activeSectionId === sectionId;
+              const sectionSlides = slides.filter((s) => s.section === sectionId);
+              const sectionPage =
+                isActive && sectionSlides.length > 1
+                  ? sectionSlides.findIndex((s) => s.id === activeSlide.id) + 1
+                  : null;
+
+              return (
+                <button
+                  key={sectionId}
+                  className={`nav-dropdown-item ${isActive ? "nav-dropdown-active" : ""}`}
+                  style={{ "--section-color": meta.color }}
+                  onClick={() => handleSectionClick(sectionFirstIndex[sectionId])}
+                >
+                  <span className="nav-dropdown-dot" />
+                  <span className="nav-dropdown-label">{meta.label}</span>
+                  {sectionPage !== null && sectionSlides.length > 1 && (
+                    <span className="nav-section-page">
+                      {sectionPage}/{sectionSlides.length}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {activeSlide?.page && activeSlide?.total && (
