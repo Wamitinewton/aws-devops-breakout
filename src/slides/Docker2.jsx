@@ -1,7 +1,8 @@
+import { FiFile, FiLayout, FiAlertTriangle, FiXCircle } from "react-icons/fi";
 import CodeBlock from "../components/CodeBlock";
 import FAQ from "../components/FAQ";
 
-const SINGLE_STAGE_DOCKERFILE = `# Single-stage Dockerfile for a Spring Boot app
+const SINGLE_STAGE_DOCKERFILE = `# Single-stage Dockerfile
 FROM maven:3.9-eclipse-temurin-21
 
 # Set working directory inside the container
@@ -41,7 +42,7 @@ const FAQ_ITEMS = [
     a: (
       <>
         <p>Every instruction in a Dockerfile (FROM, COPY, RUN, etc.) creates a new <strong>layer</strong>. Docker caches each layer. When you rebuild, only layers that changed (and everything after them) are rebuilt.</p>
-        <p>This is why we copy <code>pom.xml</code> and download dependencies <em>before</em> copying source code — if your source changes but <code>pom.xml</code> doesn't, Docker reuses the cached dependency layer, making rebuilds much faster.</p>
+        <p>This is why we copy dependency descriptors and download dependencies <em>before</em> copying source code — if your source changes but the dependency file doesn't, Docker reuses the cached dependency layer, making rebuilds much faster.</p>
       </>
     ),
   },
@@ -49,14 +50,14 @@ const FAQ_ITEMS = [
     q: "What is the difference between CMD and ENTRYPOINT?",
     a: (
       <>
-        <p><strong>ENTRYPOINT</strong> defines the executable that always runs — it cannot be overridden by arguments passed to <code>docker run</code>. Use it when the container has a specific purpose (e.g., always run <code>java -jar app.jar</code>).</p>
+        <p><strong>ENTRYPOINT</strong> defines the executable that always runs — it cannot be overridden by arguments passed to <code>docker run</code>. Use it when the container has a specific purpose (e.g., always run the application).</p>
         <p><strong>CMD</strong> provides default arguments that can be overridden. When used together, ENTRYPOINT is the command and CMD provides default parameters.</p>
       </>
     ),
   },
   {
     q: "Why should we use a .dockerignore file?",
-    a: "The build context is the entire directory Docker sends to the daemon when you run docker build. Without .dockerignore, Docker copies your entire project including node_modules, .git history, target/ directory, etc. This makes the build context huge and slow. .dockerignore works exactly like .gitignore — list files you don't want included.",
+    a: "The build context is the entire directory Docker sends to the daemon when you run docker build. Without .dockerignore, Docker copies your entire project including build artifacts, .git history, and IDE files. This makes the build context huge and slow. .dockerignore works exactly like .gitignore — list files you don't want included.",
   },
   {
     q: "What does EXPOSE do? Does it open the port automatically?",
@@ -74,47 +75,46 @@ export default function Docker2() {
         </h1>
         <p className="slide-subtitle">
           A Dockerfile is a recipe for building an image. Learn every instruction and write
-          your first single-stage build for a Spring Boot application.
+          your first single-stage build.
         </p>
       </div>
 
-      {/* Dockerfile instructions reference */}
       <div className="card" style={{ marginBottom: "1.5rem" }}>
-        <div className="card-title">
-          <span style={{ fontSize: "20px" }}>📄</span> Dockerfile Instructions Reference
-        </div>
-        <table className="data-table">
-          <thead>
-            <tr>
-              <th>Instruction</th>
-              <th>Purpose</th>
-              <th>Example</th>
-            </tr>
-          </thead>
-          <tbody>
-            {[
-              ["FROM",       "Base image (always first)",                     "FROM eclipse-temurin:21-jre-alpine"],
-              ["WORKDIR",    "Set working directory inside container",         "WORKDIR /app"],
-              ["COPY",       "Copy files from host → container",              "COPY pom.xml ."],
-              ["ADD",        "Like COPY but also extracts archives",           "ADD app.tar.gz /opt/"],
-              ["RUN",        "Execute a shell command during build",           "RUN mvn package -DskipTests"],
-              ["ENV",        "Set environment variables",                      "ENV JAVA_OPTS=-Xmx512m"],
-              ["ARG",        "Build-time variable (not in final image)",       "ARG VERSION=1.0"],
-              ["EXPOSE",     "Document which port the app uses",               "EXPOSE 8080"],
-              ["ENTRYPOINT", "Default executable (always runs)",               'ENTRYPOINT ["java","-jar","app.jar"]'],
-              ["CMD",        "Default arguments (can be overridden)",          'CMD ["--spring.profiles.active=prod"]'],
-              ["USER",       "Run subsequent commands as this user",           "USER nobody"],
-              ["VOLUME",     "Declare a mount point for persistent storage",   "VOLUME /data"],
-              ["LABEL",      "Add metadata to the image",                      'LABEL maintainer="team@example.com"'],
-            ].map(([instr, purpose, example]) => (
-              <tr key={instr}>
-                <td><code style={{ color: "var(--vscode-keyword)" }}>{instr}</code></td>
-                <td style={{ color: "var(--muted)", fontSize: "12px" }}>{purpose}</td>
-                <td><code style={{ fontSize: "10.5px" }}>{example}</code></td>
+        <div className="card-title"><FiFile size={17} /> Dockerfile Instructions Reference</div>
+        <div className="table-scroll">
+          <table className="data-table">
+            <thead>
+              <tr>
+                <th>Instruction</th>
+                <th>Purpose</th>
+                <th>Example</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {[
+                ["FROM",       "Base image (always first)",                     "FROM eclipse-temurin:21-jre-alpine"],
+                ["WORKDIR",    "Set working directory inside container",         "WORKDIR /app"],
+                ["COPY",       "Copy files from host → container",              "COPY pom.xml ."],
+                ["ADD",        "Like COPY but also extracts archives",           "ADD app.tar.gz /opt/"],
+                ["RUN",        "Execute a shell command during build",           "RUN mvn package -DskipTests"],
+                ["ENV",        "Set environment variables",                      "ENV APP_ENV=production"],
+                ["ARG",        "Build-time variable (not in final image)",       "ARG VERSION=1.0"],
+                ["EXPOSE",     "Document which port the app uses",               "EXPOSE 8080"],
+                ["ENTRYPOINT", "Default executable (always runs)",               'ENTRYPOINT ["java","-jar","app.jar"]'],
+                ["CMD",        "Default arguments (can be overridden)",          'CMD ["--profile=prod"]'],
+                ["USER",       "Run subsequent commands as this user",           "USER nobody"],
+                ["VOLUME",     "Declare a mount point for persistent storage",   "VOLUME /data"],
+                ["LABEL",      "Add metadata to the image",                      'LABEL maintainer="team@example.com"'],
+              ].map(([instr, purpose, example]) => (
+                <tr key={instr}>
+                  <td><code style={{ color: "var(--vscode-keyword)" }}>{instr}</code></td>
+                  <td style={{ color: "var(--muted)", fontSize: "12px" }}>{purpose}</td>
+                  <td><code style={{ fontSize: "10.5px" }}>{example}</code></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       </div>
 
       <div className="two-col" style={{ marginBottom: "1.5rem" }}>
@@ -131,30 +131,27 @@ export default function Docker2() {
           <CodeBlock lang="bash" filename=".dockerignore" code={DOCKERIGNORE} />
 
           <div className="highlight-box warning" style={{ marginTop: "1rem" }}>
-            <span className="icon">⚠️</span>
+            <span className="icon"><FiAlertTriangle size={17} /></span>
             <div style={{ fontSize: "12px" }}>
-              <strong>Layer caching trick:</strong> Always <code>COPY pom.xml</code> and
-              run <code>mvn dependency:go-offline</code> <em>before</em> copying <code>src/</code>.
+              <strong>Layer caching trick:</strong> Always copy your dependency descriptor and
+              run dependency downloads <em>before</em> copying source code.
               Dependencies rarely change — this keeps rebuilds fast.
             </div>
           </div>
 
           <div className="highlight-box danger" style={{ marginTop: "0.75rem" }}>
-            <span className="icon">🔴</span>
+            <span className="icon"><FiXCircle size={17} /></span>
             <div style={{ fontSize: "12px" }}>
               <strong>Problem with single-stage:</strong> The final image contains the full
-              Maven + JDK installation (~600 MB). We ship build tools into production — wasteful
+              build toolchain (~600 MB). We ship build tools into production — wasteful
               and a security risk. <em>Multi-stage builds solve this — see page 3.</em>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Build flow */}
       <div className="card" style={{ marginBottom: "1.5rem" }}>
-        <div className="card-title">
-          <span style={{ fontSize: "20px" }}>🏗️</span> How a Docker Build Works
-        </div>
+        <div className="card-title"><FiLayout size={17} /> How a Docker Build Works</div>
         <div style={{ display: "flex", flexDirection: "column", gap: "0.5rem" }}>
           {[
             ["1. Build context sent", "Docker CLI sends the entire project directory (minus .dockerignore) to the Docker daemon"],

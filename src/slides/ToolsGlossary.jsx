@@ -1,8 +1,17 @@
+import { FiBox, FiTool, FiCloud, FiRefreshCw, FiPackage, FiGitBranch } from "react-icons/fi";
 import FAQ from "../components/FAQ";
+
+const TOOL_ICONS = {
+  Docker:     FiBox,
+  Jenkins:    FiTool,
+  Kubernetes: FiCloud,
+  ArgoCD:     FiRefreshCw,
+  GHCR:       FiPackage,
+  GitOps:     FiGitBranch,
+};
 
 const TOOLS = [
   {
-    icon: "🐳",
     name: "Docker",
     color: "#2496ed",
     badge: "Containerisation",
@@ -10,7 +19,6 @@ const TOOLS = [
     desc: "Docker packages your application and all its dependencies into a single portable unit called a container. The container runs identically on any machine — your laptop, a CI server, or a cloud VM.",
   },
   {
-    icon: "🔧",
     name: "Jenkins",
     color: "#d33833",
     badge: "CI Automation",
@@ -18,7 +26,6 @@ const TOOLS = [
     desc: "Jenkins is an open-source automation server. It watches your Git repository for changes, then automatically builds your code, runs tests, builds a Docker image, and pushes it to a registry.",
   },
   {
-    icon: "☸️",
     name: "Kubernetes",
     color: "#326ce5",
     badge: "Orchestration",
@@ -26,7 +33,6 @@ const TOOLS = [
     desc: "Kubernetes (K8s) manages groups of containers across many servers. It handles scaling, self-healing, rolling updates, and service discovery so you don't have to.",
   },
   {
-    icon: "🔄",
     name: "ArgoCD",
     color: "#ef7b4d",
     badge: "GitOps CD",
@@ -34,7 +40,6 @@ const TOOLS = [
     desc: "ArgoCD continuously watches a Git repository and ensures that what is deployed in Kubernetes matches exactly what is defined in Git. Any drift is detected and corrected automatically.",
   },
   {
-    icon: "📦",
     name: "GHCR",
     color: "#a78bfa",
     badge: "Image Registry",
@@ -42,7 +47,6 @@ const TOOLS = [
     desc: "GitHub Container Registry stores your Docker images alongside your source code. It integrates seamlessly with GitHub Actions and PAT-based authentication used by Jenkins.",
   },
   {
-    icon: "🌿",
     name: "GitOps",
     color: "#10b981",
     badge: "Methodology",
@@ -52,14 +56,14 @@ const TOOLS = [
 ];
 
 const PIPELINE_STEPS = [
-  { label: "Code",       desc: "Developer pushes code to GitHub" },
-  { label: "Webhook",    desc: "GitHub fires a webhook to Jenkins" },
-  { label: "Build",      desc: "Jenkins compiles the JAR with Maven" },
-  { label: "Image",      desc: "Docker image built & pushed to GHCR" },
-  { label: "GitOps",     desc: "Jenkins updates deployment.yaml in infra repo" },
-  { label: "Sync",       desc: "ArgoCD detects drift and syncs cluster" },
-  { label: "Deploy",     desc: "Kubernetes performs a rolling update" },
-  { label: "Live",       desc: "Application is running in production" },
+  { label: "Code",    desc: "Developer pushes code to GitHub" },
+  { label: "Webhook", desc: "GitHub fires a webhook to Jenkins" },
+  { label: "Build",   desc: "Jenkins builds and packages the application" },
+  { label: "Image",   desc: "Docker image built & pushed to GHCR" },
+  { label: "GitOps",  desc: "Jenkins updates deployment.yaml in infra repo" },
+  { label: "Sync",    desc: "ArgoCD detects drift and syncs cluster" },
+  { label: "Deploy",  desc: "Kubernetes performs a rolling update" },
+  { label: "Live",    desc: "Application is running in production" },
 ];
 
 const FAQ_ITEMS = [
@@ -89,16 +93,19 @@ export default function ToolsGlossary() {
       </div>
 
       <div className="card-grid" style={{ marginBottom: "2rem" }}>
-        {TOOLS.map((t) => (
-          <div className="card" key={t.name} style={{ borderColor: `${t.color}22` }}>
-            <div className="card-title">
-              <span style={{ fontSize: "22px" }}>{t.icon}</span>
-              <span style={{ color: t.color }}>{t.name}</span>
-              <span className={`badge ${t.badgeClass}`} style={{ marginLeft: "auto" }}>{t.badge}</span>
+        {TOOLS.map((t) => {
+          const Icon = TOOL_ICONS[t.name];
+          return (
+            <div className="card" key={t.name} style={{ borderColor: `${t.color}22` }}>
+              <div className="card-title">
+                <Icon size={18} style={{ color: t.color, flexShrink: 0 }} />
+                <span style={{ color: t.color }}>{t.name}</span>
+                <span className={`badge ${t.badgeClass}`} style={{ marginLeft: "auto" }}>{t.badge}</span>
+              </div>
+              <div className="card-body">{t.desc}</div>
             </div>
-            <div className="card-body">{t.desc}</div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <hr className="section-divider" />

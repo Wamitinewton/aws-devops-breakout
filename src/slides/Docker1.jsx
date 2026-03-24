@@ -1,3 +1,4 @@
+import { FiImage, FiBox, FiHardDrive, FiGlobe, FiSettings, FiAlertTriangle, FiMapPin } from "react-icons/fi";
 import CodeBlock from "../components/CodeBlock";
 import FAQ from "../components/FAQ";
 
@@ -29,6 +30,33 @@ const FAQ_ITEMS = [
   },
 ];
 
+const CONCEPTS = [
+  {
+    icon: FiImage,
+    title: "Docker Image",
+    desc: "A read-only template that contains your application, its runtime, libraries, and configuration. Images are built in layers. Each instruction in a Dockerfile adds a layer. Images are stored in a registry (GHCR, Docker Hub).",
+    badges: [["badge-blue", "Read-only"], ["badge-blue", "Layered"], ["badge-blue", "Stored in Registry"]],
+  },
+  {
+    icon: FiBox,
+    title: "Docker Container",
+    desc: "A running instance of an image. You can start, stop, pause, and delete containers. Multiple containers can run from the same image simultaneously. Each container is isolated but shares the host OS kernel — making it lightweight.",
+    badges: [["badge-green", "Runnable"], ["badge-green", "Isolated"], ["badge-green", "Ephemeral"]],
+  },
+  {
+    icon: FiHardDrive,
+    title: "Volume",
+    desc: "Containers are stateless — data written inside them is lost when they stop. A volume is a persistent storage location on the host that survives container restarts and deletions. Essential for databases and logs.",
+    badges: [["badge-amber", "Persistent"], ["badge-amber", "Shared"]],
+  },
+  {
+    icon: FiGlobe,
+    title: "Network",
+    desc: "Docker creates virtual networks so containers can talk to each other safely. By default, containers are isolated from the host network. You expose ports explicitly (e.g. -p 8080:8080) to make a service reachable from outside.",
+    badges: [["badge-purple", "Bridge"], ["badge-purple", "Host"], ["badge-purple", "None"]],
+  },
+];
+
 export default function Docker1() {
   return (
     <div className="slide">
@@ -43,89 +71,35 @@ export default function Docker1() {
         </p>
       </div>
 
-      {/* The problem */}
       <div className="highlight-box warning" style={{ marginBottom: "1.5rem" }}>
-        <span className="icon">😤</span>
+        <span className="icon"><FiAlertTriangle size={17} /></span>
         <div>
           <strong>"It works on my machine!"</strong> — This is the classic DevOps problem. Your
           app runs perfectly locally but breaks in the CI server or production because the
-          environment is slightly different: a different JDK version, a missing library, or a
+          environment is slightly different: a different runtime version, a missing library, or a
           different OS. Docker eliminates this.
         </div>
       </div>
 
-      {/* Core concepts grid */}
       <div className="card-grid" style={{ marginBottom: "1.5rem" }}>
-        <div className="card">
-          <div className="card-title">
-            <span style={{ fontSize: "20px" }}>🖼️</span> Docker Image
-          </div>
-          <div className="card-body">
-            A <strong>read-only template</strong> that contains your application, its runtime,
-            libraries, and configuration. Images are built in layers. Each instruction in a
-            Dockerfile adds a layer. Images are stored in a <em>registry</em> (GHCR, Docker Hub).
-            <div className="pill-row">
-              <span className="badge badge-blue">Read-only</span>
-              <span className="badge badge-blue">Layered</span>
-              <span className="badge badge-blue">Stored in Registry</span>
+        {CONCEPTS.map(({ icon: Icon, title, desc, badges }) => (
+          <div className="card" key={title}>
+            <div className="card-title"><Icon size={18} /> {title}</div>
+            <div className="card-body">
+              {desc}
+              <div className="pill-row">
+                {badges.map(([cls, label]) => (
+                  <span key={label} className={`badge ${cls}`}>{label}</span>
+                ))}
+              </div>
             </div>
           </div>
-        </div>
-
-        <div className="card">
-          <div className="card-title">
-            <span style={{ fontSize: "20px" }}>📦</span> Docker Container
-          </div>
-          <div className="card-body">
-            A <strong>running instance</strong> of an image. You can start, stop, pause, and delete
-            containers. Multiple containers can run from the same image simultaneously. Each
-            container is isolated but shares the host OS kernel — making it lightweight.
-            <div className="pill-row">
-              <span className="badge badge-green">Runnable</span>
-              <span className="badge badge-green">Isolated</span>
-              <span className="badge badge-green">Ephemeral</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-title">
-            <span style={{ fontSize: "20px" }}>💾</span> Volume
-          </div>
-          <div className="card-body">
-            Containers are <em>stateless</em> — data written inside them is lost when they stop.
-            A <strong>volume</strong> is a persistent storage location on the host that survives
-            container restarts and deletions. Essential for databases and logs.
-            <div className="pill-row">
-              <span className="badge badge-amber">Persistent</span>
-              <span className="badge badge-amber">Shared</span>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-title">
-            <span style={{ fontSize: "20px" }}>🌐</span> Network
-          </div>
-          <div className="card-body">
-            Docker creates virtual networks so containers can talk to each other safely. By default,
-            containers are isolated from the host network. You expose ports explicitly (e.g.{" "}
-            <code>-p 8080:8080</code>) to make a service reachable from outside.
-            <div className="pill-row">
-              <span className="badge badge-purple">Bridge</span>
-              <span className="badge badge-purple">Host</span>
-              <span className="badge badge-purple">None</span>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
-      {/* Architecture */}
       <div className="card" style={{ marginBottom: "1.5rem" }}>
-        <div className="card-title">
-          <span style={{ fontSize: "20px" }}>⚙️</span> Docker Architecture
-        </div>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1.5rem" }}>
+        <div className="card-title"><FiSettings size={17} /> Docker Architecture</div>
+        <div className="two-col">
           <div className="card-body">
             <div className="step-list">
               {[
@@ -164,7 +138,6 @@ export default function Docker1() {
         </div>
       </div>
 
-      {/* Essential commands */}
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
           Essential Docker Commands
@@ -195,7 +168,7 @@ docker rmi hello-devops:1.0`} />
       </div>
 
       <div className="highlight-box info">
-        <span className="icon">📌</span>
+        <span className="icon"><FiMapPin size={17} /></span>
         <div>
           <strong>Image naming convention:</strong> <code>registry/username/image-name:tag</code>
           <br />Example: <code>ghcr.io/your-org/hello-devops:42</code> — registry is{" "}

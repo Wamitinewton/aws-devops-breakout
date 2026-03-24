@@ -1,5 +1,5 @@
+import { FiFolder, FiInfo, FiZap } from "react-icons/fi";
 import CodeBlock from "../components/CodeBlock";
-import FAQ from "../components/FAQ";
 
 const CONTROLLER_JAVA = `package com.devops.hellodevops;
 
@@ -106,52 +106,23 @@ const POM_XML = `<?xml version="1.0" encoding="UTF-8"?>
   </build>
 </project>`;
 
-const FAQ_ITEMS = [
-  {
-    q: "Why use application.yml instead of application.properties?",
-    a: (
-      <>
-        <p><code>application.yml</code> uses YAML format, which supports hierarchical structure natively. Compare:</p>
-        <ul>
-          <li><strong>properties:</strong> <code>management.endpoints.web.exposure.include=health,info</code></li>
-          <li><strong>yml:</strong> Nested <code>management.endpoints.web.exposure.include: health,info</code></li>
-        </ul>
-        <p>YAML is more readable for complex configurations and is the industry standard for Kubernetes-deployed Spring Boot apps. It also supports comments, lists, and multi-document files with <code>---</code>.</p>
-      </>
-    ),
-  },
-  {
-    q: "What does spring-boot-starter-actuator give us?",
-    a: "Actuator adds production-ready features: /actuator/health returns the application health status (used by Kubernetes readiness/liveness probes), /actuator/info provides build metadata, and many other monitoring endpoints. Without actuator, Kubernetes cannot check if your Spring Boot app is actually healthy — it can only check if the container is running.",
-  },
-  {
-    q: "Why do we use Map.of() instead of a plain String return?",
-    a: "Returning a Java Map causes Spring to serialize the response as JSON automatically. curl http://localhost:8080/hello returns {\"message\": \"Hello, DevOps World!\", \"status\": \"running\"}. A plain String would return the raw text. JSON is the correct format for REST APIs — it is structured, versioned, and easy for any client to consume.",
-  },
-  {
-    q: "Do we need Spring Security for this demo?",
-    a: "No. This is a beginner demo with no authentication. Adding Spring Security would require configuration and would block the health endpoints that Kubernetes needs. In a real application you would add security, but for learning the DevOps pipeline, we keep the application as simple as possible so we can focus on the infrastructure.",
-  },
-];
-
 export default function LiveDemo1() {
   return (
     <div className="slide">
       <div className="slide-header">
         <span className="slide-tag">Live Demo · Page 1 of 2</span>
         <h1 className="slide-title">
-          <span className="glow-amber">Hello DevOps</span> — The Application
+          <span className="glow-amber">Hello DevOps</span> — The Demo Application
         </h1>
         <p className="slide-subtitle">
-          A simple Spring Boot REST application — one endpoint, one purpose. We will build,
-          containerise, and deploy it using the full CI/CD pipeline we have learned.
+          A simple REST application written in Java (Spring Boot) — one endpoint, one purpose.
+          Java is used here as a concrete example; the DevOps concepts apply equally to any language or framework.
         </p>
       </div>
 
-      {/* Project structure */}
       <div className="two-col" style={{ marginBottom: "1.5rem" }}>
         <div className="card">
-          <div className="card-title"><span style={{ fontSize: "20px" }}>📁</span> Project Structure</div>
+          <div className="card-title"><FiFolder size={17} /> Project Structure</div>
           <div className="arch-box">{`hello-devops/
 ├── src/
 │   ├── main/
@@ -176,16 +147,15 @@ export default function LiveDemo1() {
           </div>
           <CodeBlock lang="yaml" filename="src/main/resources/application.yml" code={APPLICATION_YML} />
           <div className="highlight-box info" style={{ marginTop: "0.75rem" }}>
-            <span className="icon">💡</span>
+            <span className="icon"><FiInfo size={17} /></span>
             <div style={{ fontSize: "12px" }}>
-              Spring Boot Actuator exposes <code>/actuator/health</code> which returns the
-              application health status. Kubernetes uses this for readiness and liveness probes.
+              The <code>/actuator/health</code> endpoint exposes application health status.
+              Kubernetes uses this for readiness and liveness probes — essential for zero-downtime deployments.
             </div>
           </div>
         </div>
       </div>
 
-      {/* Java code */}
       <div className="two-col" style={{ marginBottom: "1.5rem" }}>
         <div>
           <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
@@ -203,32 +173,33 @@ export default function LiveDemo1() {
             <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
               Available Endpoints
             </div>
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Endpoint</th>
-                  <th>Returns</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["GET /hello",          '{ "message": "Hello, DevOps World!", "status": "running" }'],
-                  ["GET /",              '{ "service": "hello-devops", "version": "1.0" }'],
-                  ["GET /actuator/health", '{ "status": "UP", "components": {...} }'],
-                  ["GET /actuator/info",   "Build info, Git commit, app version"],
-                ].map(([ep, resp]) => (
-                  <tr key={ep}>
-                    <td><code style={{ fontSize: "10.5px" }}>{ep}</code></td>
-                    <td style={{ fontSize: "11px", color: "var(--muted)" }}>{resp}</td>
+            <div className="table-scroll">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Endpoint</th>
+                    <th>Returns</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {[
+                    ["GET /hello",           '{ "message": "Hello, DevOps World!", "status": "running" }'],
+                    ["GET /",               '{ "service": "hello-devops", "version": "1.0" }'],
+                    ["GET /actuator/health", '{ "status": "UP", "components": {...} }'],
+                    ["GET /actuator/info",   "Build info, Git commit, app version"],
+                  ].map(([ep, resp]) => (
+                    <tr key={ep}>
+                      <td><code style={{ fontSize: "10.5px" }}>{ep}</code></td>
+                      <td style={{ fontSize: "11px", color: "var(--muted)" }}>{resp}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* pom.xml */}
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
           pom.xml
@@ -237,15 +208,13 @@ export default function LiveDemo1() {
       </div>
 
       <div className="highlight-box success">
-        <span className="icon">🚀</span>
+        <span className="icon"><FiZap size={17} /></span>
         <div>
           <strong>Run locally first:</strong> <code>mvn spring-boot:run</code> then{" "}
           <code>curl http://localhost:8080/hello</code>. Confirm it works before writing the
           Dockerfile. On the next page we containerise it and deploy through the full pipeline.
         </div>
       </div>
-
-      <FAQ items={FAQ_ITEMS} />
     </div>
   );
 }

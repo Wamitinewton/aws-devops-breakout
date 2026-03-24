@@ -1,3 +1,4 @@
+import { FiList, FiKey, FiGithub, FiCheckCircle } from "react-icons/fi";
 import CodeBlock from "../components/CodeBlock";
 import FAQ from "../components/FAQ";
 
@@ -22,7 +23,7 @@ const JENKINSFILE = `pipeline {
             }
         }
 
-        stage('Build JAR') {
+        stage('Build') {
             steps {
                 sh 'mvn clean package -DskipTests'
                 // Archive the artifact so it appears in Jenkins UI
@@ -130,6 +131,34 @@ const FAQ_ITEMS = [
   },
 ];
 
+const ANATOMY_ITEMS = [
+  ["pipeline { }", "The root block — wraps everything"],
+  ["agent any", "Run on any available agent. Use agent { docker { image '...' } } for container agents"],
+  ["environment { }", "Declare environment variables accessible in all stages"],
+  ["stages { }", "Container for all stage blocks"],
+  ["stage('Name') { }", "A named logical phase: Checkout, Build, Test, Deploy"],
+  ["steps { }", "The actual commands to run inside a stage"],
+  ["post { }", "Steps to run after the pipeline completes (success, failure, always)"],
+];
+
+const BUILT_IN_VARS = [
+  ["BUILD_NUMBER", "Auto-incrementing build ID (1, 2, 3...)"],
+  ["BUILD_ID",     "Same as BUILD_NUMBER"],
+  ["JOB_NAME",     "Name of the pipeline job"],
+  ["WORKSPACE",    "Absolute path to the build workspace"],
+  ["GIT_COMMIT",   "Full SHA of the current commit"],
+  ["GIT_BRANCH",   "Branch that triggered the build"],
+  ["JENKINS_URL",  "Base URL of the Jenkins server"],
+];
+
+const WEBHOOK_STEPS = [
+  ["GitHub → Repo → Settings → Webhooks", "Navigate to your source code repository's settings"],
+  ["Add webhook", "Payload URL: http://YOUR-SERVER:8080/github-webhook/ · Content type: application/json"],
+  ["Select trigger", "Choose 'Just the push event' to trigger on every git push"],
+  ["Jenkins job configuration", "In the Jenkins pipeline job → Build Triggers → tick 'GitHub hook trigger for GITScm polling'"],
+  ["Test the webhook", "Push a commit — GitHub should show a green tick next to the webhook and Jenkins should start a build"],
+];
+
 export default function Jenkins2() {
   return (
     <div className="slide">
@@ -144,21 +173,12 @@ export default function Jenkins2() {
         </p>
       </div>
 
-      {/* Pipeline anatomy */}
       <div className="card-grid" style={{ marginBottom: "1.5rem" }}>
         <div className="card">
-          <div className="card-title"><span style={{ fontSize: "20px" }}>🏛️</span> Declarative Pipeline Anatomy</div>
+          <div className="card-title"><FiList size={17} /> Declarative Pipeline Anatomy</div>
           <div className="card-body">
             <div className="step-list">
-              {[
-                ["pipeline { }", "The root block — wraps everything"],
-                ["agent any", "Run on any available agent. Use agent { docker { image '...' } } for container agents"],
-                ["environment { }", "Declare environment variables accessible in all stages"],
-                ["stages { }", "Container for all stage blocks"],
-                ["stage('Name') { }", "A named logical phase: Checkout, Build, Test, Deploy"],
-                ["steps { }", "The actual commands to run inside a stage"],
-                ["post { }", "Steps to run after the pipeline completes (success, failure, always)"],
-              ].map(([title, desc]) => (
+              {ANATOMY_ITEMS.map(([title, desc]) => (
                 <div className="step-item" key={title}>
                   <div className="step-content">
                     <div className="step-title"><code style={{ fontSize: "11px" }}>{title}</code></div>
@@ -171,37 +191,30 @@ export default function Jenkins2() {
         </div>
 
         <div className="card">
-          <div className="card-title"><span style={{ fontSize: "20px" }}>🔑</span> Useful Built-in Variables</div>
+          <div className="card-title"><FiKey size={17} /> Useful Built-in Variables</div>
           <div className="card-body">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Variable</th>
-                  <th>Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                {[
-                  ["BUILD_NUMBER", "Auto-incrementing build ID (1, 2, 3...)"],
-                  ["BUILD_ID",     "Same as BUILD_NUMBER"],
-                  ["JOB_NAME",     "Name of the pipeline job"],
-                  ["WORKSPACE",    "Absolute path to the build workspace"],
-                  ["GIT_COMMIT",   "Full SHA of the current commit"],
-                  ["GIT_BRANCH",   "Branch that triggered the build"],
-                  ["JENKINS_URL",  "Base URL of the Jenkins server"],
-                ].map(([v, d]) => (
-                  <tr key={v}>
-                    <td><code style={{ fontSize: "10.5px" }}>{v}</code></td>
-                    <td style={{ fontSize: "11.5px" }}>{d}</td>
+            <div className="table-scroll">
+              <table className="data-table">
+                <thead>
+                  <tr>
+                    <th>Variable</th>
+                    <th>Value</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {BUILT_IN_VARS.map(([v, d]) => (
+                    <tr key={v}>
+                      <td><code style={{ fontSize: "10.5px" }}>{v}</code></td>
+                      <td style={{ fontSize: "11.5px" }}>{d}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Full Jenkinsfile */}
       <div style={{ marginBottom: "1.5rem" }}>
         <div style={{ color: "var(--muted)", marginBottom: "0.75rem", fontSize: "11px", letterSpacing: "2px", fontFamily: "var(--font-mono)", textTransform: "uppercase" }}>
           Complete Jenkinsfile — Hello DevOps Pipeline
@@ -209,17 +222,10 @@ export default function Jenkins2() {
         <CodeBlock lang="jenkinsfile" filename="Jenkinsfile" code={JENKINSFILE} />
       </div>
 
-      {/* Webhook setup */}
       <div className="card" style={{ marginBottom: "1.5rem" }}>
-        <div className="card-title"><span style={{ fontSize: "20px" }}>🔔</span> GitHub Webhook Setup</div>
+        <div className="card-title"><FiGithub size={17} /> GitHub Webhook Setup</div>
         <div className="step-list">
-          {[
-            ["GitHub → Repo → Settings → Webhooks", "Navigate to your source code repository's settings"],
-            ["Add webhook", "Payload URL: http://YOUR-SERVER:8080/github-webhook/ · Content type: application/json"],
-            ["Select trigger", "Choose 'Just the push event' to trigger on every git push"],
-            ["Jenkins job configuration", "In the Jenkins pipeline job → Build Triggers → tick 'GitHub hook trigger for GITScm polling'"],
-            ["Test the webhook", "Push a commit — GitHub should show a green tick next to the webhook and Jenkins should start a build"],
-          ].map(([title, desc], i) => (
+          {WEBHOOK_STEPS.map(([title, desc], i) => (
             <div className="step-item" key={i}>
               <div className="step-num">{i + 1}</div>
               <div className="step-content">
@@ -232,9 +238,9 @@ export default function Jenkins2() {
       </div>
 
       <div className="highlight-box success">
-        <span className="icon">✅</span>
+        <span className="icon"><FiCheckCircle size={17} /></span>
         <div>
-          Once the pipeline is set up: every <code>git push</code> triggers Jenkins → Maven build →
+          Once the pipeline is set up: every <code>git push</code> triggers Jenkins → build &amp; package →
           Docker image built and pushed to GHCR → <code>deployment.yaml</code> updated in the infra
           repo → ArgoCD picks up the change and deploys to Kubernetes. Fully automated.
         </div>
