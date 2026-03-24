@@ -38,11 +38,16 @@ const SLIDES = [
   { id: "demo-2",   section: "demo",       label: "Live Demo",        page: 2, total: 2, component: LiveDemo2 },
 ];
 
+const SWIPE_THRESHOLD = 50;
+const SWIPE_RATIO = 1.5;
+
 export default function App() {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState("forward");
   const [animating, setAnimating] = useState(false);
   const containerRef = useRef(null);
+  const touchStartX = useRef(null);
+  const touchStartY = useRef(null);
 
   const goTo = (idx) => {
     if (animating || idx === current || idx < 0 || idx >= SLIDES.length) return;
@@ -68,6 +73,27 @@ export default function App() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [current, animating]);
 
+  const handleTouchStart = (e) => {
+    if (e.target.closest(".vscode-body") || e.target.closest(".arch-box") || e.target.closest(".table-scroll")) {
+      touchStartX.current = null;
+      return;
+    }
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e) => {
+    if (touchStartX.current === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = e.changedTouches[0].clientY - touchStartY.current;
+    if (Math.abs(dx) > Math.abs(dy) * SWIPE_RATIO && Math.abs(dx) > SWIPE_THRESHOLD) {
+      if (dx < 0) next();
+      else prev();
+    }
+    touchStartX.current = null;
+    touchStartY.current = null;
+  };
+
   const { component: SlideComponent, section } = SLIDES[current];
   const sectionSlides = SLIDES.filter((s) => s.section === section);
   const sectionIdx    = sectionSlides.findIndex((s) => s.id === SLIDES[current].id);
@@ -79,6 +105,8 @@ export default function App() {
       <main
         ref={containerRef}
         className={`slide-container ${animating ? (direction === "forward" ? "exit-left" : "exit-right") : "enter"}`}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEnd}
       >
         <SlideComponent />
       </main>
