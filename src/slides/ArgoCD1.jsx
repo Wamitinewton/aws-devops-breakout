@@ -1,4 +1,4 @@
-import { FiGitBranch, FiSettings, FiBarChart2, FiSliders } from "react-icons/fi";
+import { FiGitBranch, FiSettings, FiBarChart2, FiSliders, FiXCircle, FiCheckCircle } from "react-icons/fi";
 import FAQ from "../components/FAQ";
 
 const FAQ_ITEMS = [
@@ -158,8 +158,8 @@ export default function ArgoCD1() {
               {COMPARISON_ROWS.map(([aspect, manual, argo]) => (
                 <tr key={aspect}>
                   <td style={{ fontWeight: 700, color: "var(--text)" }}>{aspect}</td>
-                  <td style={{ color: "var(--danger)", fontSize: "12px" }}>✗ {manual}</td>
-                  <td style={{ color: "var(--accent4)", fontSize: "12px" }}>✓ {argo}</td>
+                  <td style={{ color: "var(--danger)", fontSize: "12px" }}><FiXCircle size={12} style={{ verticalAlign: "middle", marginRight: "4px" }} />{manual}</td>
+                  <td style={{ color: "var(--accent4)", fontSize: "12px" }}><FiCheckCircle size={12} style={{ verticalAlign: "middle", marginRight: "4px" }} />{argo}</td>
                 </tr>
               ))}
             </tbody>
