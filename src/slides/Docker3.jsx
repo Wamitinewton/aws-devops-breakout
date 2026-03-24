@@ -138,8 +138,8 @@ export default function Docker3() {
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem", fontFamily: "var(--font-head)", fontWeight: 700, fontSize: "13px", color: "#fff", marginBottom: "0.5rem" }}>
                 <Icon size={15} style={{ color: "var(--accent)", flexShrink: 0 }} /> {label}
               </div>
-              <div style={{ fontSize: "12px", color: "var(--danger)", marginBottom: "0.25rem" }}>✗ {bad}</div>
-              <div style={{ fontSize: "12px", color: "var(--accent4)" }}>✓ {good}</div>
+              <div style={{ fontSize: "12px", color: "var(--danger)", marginBottom: "0.25rem", display: "flex", alignItems: "center", gap: "4px" }}><FiXCircle size={12} style={{ flexShrink: 0 }} />{bad}</div>
+              <div style={{ fontSize: "12px", color: "var(--accent4)", display: "flex", alignItems: "center", gap: "4px" }}><FiCheckCircle size={12} style={{ flexShrink: 0 }} />{good}</div>
             </div>
           ))}
         </div>
